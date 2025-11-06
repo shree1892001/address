@@ -24,7 +24,18 @@ class DynamicTextProcessingService:
     @log_method_entry_exit
     @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
     def process_text_dynamically(self, text: str) -> Dict:
-        """Process text dynamically without hardcoded patterns"""
+        """Process text dynamically without hardcoded patterns
+        
+        Args:
+            text: The input text to process
+            
+        Returns:
+            Dict containing:
+                - processed_text: The processed text (always contains the complete text)
+                - text_type: The detected text type
+                - confidence: Confidence score of the processing
+                - characteristics: Analysis of text characteristics
+        """
         try:
             if not text:
                 return {
@@ -34,29 +45,48 @@ class DynamicTextProcessingService:
                     "characteristics": {}
                 }
             
+            # Always keep the original text as fallback
+            original_text = text
+            
             # Analyze text characteristics
             characteristics = self._analyze_text_characteristics(text)
             
-            # Determine text type dynamically
-            text_type = self._determine_text_type_dynamically(characteristics)
-            
-            # Apply appropriate processing
-            processed_text = self._apply_dynamic_processing(text, characteristics, text_type)
-            
-            # Calculate confidence
-            confidence = self._calculate_processing_confidence(characteristics, text_type)
-            
-            return {
-                "processed_text": processed_text,
-                "text_type": text_type,
-                "confidence": confidence,
-                "characteristics": characteristics
-            }
+            try:
+                # Determine text type dynamically
+                text_type = self._determine_text_type_dynamically(characteristics)
+                
+                # Apply appropriate processing
+                processed_text = self._apply_dynamic_processing(text, characteristics, text_type)
+                
+                # Ensure we don't lose any text during processing
+                if not processed_text or len(processed_text.strip()) == 0:
+                    self.logger.warning("Processing resulted in empty text, falling back to original")
+                    processed_text = original_text
+                
+                # Calculate confidence
+                confidence = self._calculate_processing_confidence(characteristics, text_type)
+                
+                return {
+                    "processed_text": processed_text,
+                    "text_type": text_type,
+                    "confidence": confidence,
+                    "characteristics": characteristics
+                }
+                
+            except Exception as processing_error:
+                self.logger.error(f"Text processing failed, returning original text: {processing_error}")
+                return {
+                    "processed_text": original_text,  # Return original text on processing failure
+                    "text_type": "unknown",
+                    "confidence": 0.0,
+                    "characteristics": characteristics
+                }
             
         except Exception as e:
-            self.logger.error(f"Dynamic text processing failed: {e}")
+            self.logger.error(f"Dynamic text processing failed completely: {e}")
+            # Last resort: return the original text in a way that won't cause downstream issues
             return {
-                "processed_text": text,
+                "processed_text": text if text else "",  # Ensure we always return a string
                 "text_type": "unknown",
                 "confidence": 0.0,
                 "characteristics": {}
@@ -437,33 +467,55 @@ class DynamicTextProcessingService:
             return "unknown"
 
     def _apply_dynamic_processing(self, text: str, characteristics: Dict, text_type: str) -> str:
-        """Apply appropriate processing based on text type and characteristics"""
+        """Apply appropriate processing based on text type and characteristics
+        
+        Args:
+            text: The text to process
+            characteristics: Dictionary of text characteristics
+            text_type: The detected text type
+            
+        Returns:
+            The processed text, or the original text if processing fails
+        """
         try:
             if not text:
                 return ""
             
+            # Keep the original text as fallback
+            original_text = text
             processed_text = text
             
-            # Apply processing based on text type
-            if text_type == "numeric_heavy":
-                processed_text = self._process_numeric_text(processed_text, characteristics)
-            elif text_type == "text_heavy":
-                processed_text = self._process_text_heavy(processed_text, characteristics)
-            elif text_type == "dense_text":
-                processed_text = self._process_dense_text(processed_text, characteristics)
-            elif text_type == "simple_text":
-                processed_text = self._process_simple_text(processed_text, characteristics)
-            else:
-                processed_text = self._process_general_text(processed_text, characteristics)
-            
-            # Apply common processing
-            processed_text = self._apply_common_processing(processed_text)
-            
-            return processed_text
+            try:
+                # Apply processing based on text type
+                if text_type == "numeric_heavy":
+                    processed_text = self._process_numeric_text(processed_text, characteristics)
+                elif text_type == "text_heavy":
+                    processed_text = self._process_text_heavy(processed_text, characteristics)
+                elif text_type == "dense_text":
+                    processed_text = self._process_dense_text(processed_text, characteristics)
+                elif text_type == "simple_text":
+                    processed_text = self._process_simple_text(processed_text, characteristics)
+                else:
+                    processed_text = self._process_general_text(processed_text, characteristics)
+                
+                # Apply common processing
+                if processed_text:  # Only apply if we have valid processed text
+                    processed_text = self._apply_common_processing(processed_text)
+                
+                # Final check to ensure we don't lose content
+                if not processed_text or len(processed_text.strip()) == 0:
+                    self.logger.warning("Processing resulted in empty text, using original")
+                    return original_text
+                    
+                return processed_text
+                
+            except Exception as processing_error:
+                self.logger.warning(f"Error in text processing: {processing_error}")
+                return original_text  # Return original text if any processing step fails
             
         except Exception as e:
-            self.logger.warning(f"Dynamic processing failed: {e}")
-            return text
+            self.logger.error(f"Unexpected error in dynamic processing: {e}")
+            return text  # Return original text on any unexpected error
 
     def _process_numeric_text(self, text: str, characteristics: Dict) -> str:
         """Process numeric-heavy text"""

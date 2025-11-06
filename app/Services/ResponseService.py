@@ -42,6 +42,15 @@ class ResponseService:
         return service_response
 
     @log_method_entry_exit
+    @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
+    def handle_extract_all_content_response(self, service_response):
+        """Handle extract-all-content response - returns only extracted text as plain text"""
+        if isinstance(service_response, dict) and "extracted_text" in service_response:
+            # Return just the text content as plain text response
+            return service_response["extracted_text"]
+        return service_response
+
+    @log_method_entry_exit
     def handle_table_extraction_error(self, error, operation_type="extraction"):
         """Handle table extraction errors and convert to HTTP exceptions"""
         if isinstance(error, (InvalidFileTypeException, FileNotFoundException, NoTableFoundException,

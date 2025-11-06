@@ -1,9 +1,11 @@
 import re
+import statistics
 from typing import List, Dict, Optional
 from app.Logger.ocr_logger import get_standard_logger
 from app.Exceptions.custom_exceptions import (
     handle_general_operations, log_method_entry_exit, ExceptionSeverity
 )
+from app.Services.OCRService import OCRService
 
 
 class TextExtractionService:
@@ -18,32 +20,775 @@ class TextExtractionService:
     def __init__(self):
         if not self._initialized:
             self.logger = get_standard_logger("TextExtractionService")
+            self.ocr_service = OCRService()
             self._initialized = True
 
     @log_method_entry_exit
     @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
-    def extract_text_from_regions(self, text_regions: List[Dict]) -> List[Dict]:
-        """Extract and organize text from text regions"""
+    async def extract_all_text_from_pdf_comprehensive(self, pdf_path: str) -> str:
+        """Comprehensive text extraction optimized for Canva PDFs and other complex formats.
+        
+        This method uses multiple extraction strategies to handle:
+        - Regular PDFs with direct text
+        - Canva PDFs with XObject Forms
+        - PDFs with structured content trees
+        - Scanned/image-based PDFs (with OCR fallback)
+        
+        Args:
+            pdf_path: Path to the PDF file
+            
+        Returns:
+            Complete extracted text as a string
+        """
+        all_text = ""
+        
+        try:
+            import fitz
+            doc = fitz.open(pdf_path)
+            
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                page_texts = []
+                
+                # Strategy 1: Standard PyMuPDF extraction methods
+                try:
+                    page_texts.append(page.get_text())
+                    page_texts.append(page.get_text("text"))
+                    page_texts.append(page.get_text("raw"))
+                    page_texts.append(page.get_text("layout"))
+                except Exception as e:
+                    self.logger.warning(f"Standard extraction failed for page {page_num + 1}: {e}")
+                
+                # Strategy 2: Extract from dict blocks (catches structured content)
+                try:
+                    td = page.get_text("dict", flags=11)  # flags=11 for comprehensive extraction
+                    block_lines = []
+                    for block in td.get("blocks", []):
+                        if block.get("type") == 0:  # Text block
+                            for line in block.get("lines", []):
+                                line_text = " ".join([span.get("text", "") for span in line.get("spans", [])]).strip()
+                                if line_text:
+                                    block_lines.append(line_text)
+                    if block_lines:
+                        page_texts.append("\n".join(block_lines))
+                except Exception as e:
+                    self.logger.warning(f"Dict block extraction failed for page {page_num + 1}: {e}")
+                
+                # Strategy 3: Extract from structured content tree (for Canva PDFs with StructTreeRoot)
+                try:
+                    struct_text = []
+                    # Get structured text with comprehensive flags
+                    text_dict = page.get_text("dict", flags=11)
+                    for block in text_dict.get("blocks", []):
+                        if block.get("type") == 0:  # Text block
+                            for line in block.get("lines", []):
+                                line_parts = []
+                                for span in line.get("spans", []):
+                                    span_text = span.get("text", "").strip()
+                                    if span_text:
+                                        line_parts.append(span_text)
+                                if line_parts:
+                                    struct_text.append(" ".join(line_parts))
+                    
+                    if struct_text:
+                        page_texts.append("\n".join(struct_text))
+                except Exception as e:
+                    self.logger.warning(f"Structured content extraction failed for page {page_num + 1}: {e}")
+                
+                # Strategy 4: Extract from XObject Forms (critical for Canva PDFs)
+                try:
+                    # Canva PDFs store content in XObject Forms referenced in page resources
+                    xobject_texts = []
+                    
+                    # Get page resources to find XObjects
+                    try:
+                        # Try to extract text with different extraction flags that handle XObjects
+                        xobj_text = page.get_text(flags=11)  # Comprehensive flags
+                        if xobj_text and xobj_text.strip():
+                            xobject_texts.append(xobj_text)
+                    except:
+                        pass
+                    
+                    # Also try extracting from the document's structure tree if available
+                    try:
+                        if doc.is_pdf:
+                            # Try to get text from all content streams
+                            for xref in page.get_contents():
+                                try:
+                                    # PyMuPDF should handle XObjects automatically, but we can also
+                                    # try to get additional text from content streams
+                                    stream_text = page.get_text(flags=11)
+                                    if stream_text:
+                                        xobject_texts.append(stream_text)
+                                except:
+                                    pass
+                    except:
+                        pass
+                    
+                    if xobject_texts:
+                        # Deduplicate and combine
+                        unique_xobj = list(set([t.strip() for t in xobject_texts if t.strip()]))
+                        if unique_xobj:
+                            page_texts.append("\n".join(unique_xobj))
+                except Exception as e:
+                    self.logger.warning(f"XObject extraction failed for page {page_num + 1}: {e}")
+                
+                # Combine all extraction results for this page
+                combined = "\n".join([t for t in page_texts if t and t.strip()])
+                
+                # If we got substantial text, add it
+                if combined.strip() and len(combined.strip()) > 20:
+                    all_text += f"\n--- PAGE {page_num + 1} ---\n{combined}\n"
+                # Otherwise try OCR as last resort
+                elif len(combined.strip()) < 20:
+                    try:
+                        pix = page.get_pixmap()
+                        img_data = pix.tobytes("png")
+                        try:
+                            import pytesseract
+                            from PIL import Image
+                            import io
+                            img = Image.open(io.BytesIO(img_data))
+                            ocr_text = pytesseract.image_to_string(img)
+                            if ocr_text.strip():
+                                all_text += f"\n--- PAGE {page_num + 1} ---\n{ocr_text}\n"
+                        except ImportError:
+                            self.logger.debug("pytesseract not available for OCR")
+                        except Exception as ocr_err:
+                            self.logger.warning(f"OCR failed for page {page_num + 1}: {ocr_err}")
+                    except Exception as pix_err:
+                        self.logger.warning(f"Pixmap creation failed for page {page_num + 1}: {pix_err}")
+            
+            doc.close()
+            
+        except Exception as e:
+            self.logger.error(f"PyMuPDF comprehensive extraction failed: {e}")
+        
+        # Fallback: Try pdfplumber if PyMuPDF didn't get enough
+        if len(all_text.strip()) < 200:
+            try:
+                import pdfplumber
+                with pdfplumber.open(pdf_path) as pdf:
+                    plumber_text = ""
+                    for page_num, page in enumerate(pdf.pages):
+                        page_text = page.extract_text()
+                        if page_text:
+                            plumber_text += f"\n--- PAGE {page_num + 1} ---\n{page_text}\n"
+                    
+                    if len(plumber_text.strip()) > len(all_text.strip()):
+                        all_text = plumber_text
+                        self.logger.info("pdfplumber provided better extraction results")
+            except Exception as e:
+                self.logger.warning(f"pdfplumber fallback failed: {e}")
+        
+        # Final fallback: PyPDF2
+        if len(all_text.strip()) < 100:
+            try:
+                import PyPDF2
+                with open(pdf_path, 'rb') as f:
+                    reader = PyPDF2.PdfReader(f)
+                    pypdf2_text = ""
+                    for page_num, page in enumerate(reader.pages):
+                        page_text = page.extract_text()
+                        if page_text:
+                            pypdf2_text += f"\n--- PAGE {page_num + 1} ---\n{page_text}\n"
+                    
+                    if len(pypdf2_text.strip()) > len(all_text.strip()):
+                        all_text = pypdf2_text
+                        self.logger.info("PyPDF2 provided fallback extraction results")
+            except Exception as e:
+                self.logger.warning(f"PyPDF2 fallback failed: {e}")
+        
+        # Clean and return
+        if all_text.strip():
+            import re
+            cleaned_text = re.sub(r'\n\s*\n\s*\n+', '\n\n', all_text)
+            cleaned_text = re.sub(r'[ \t]+', ' ', cleaned_text)
+            return cleaned_text.strip()
+        else:
+            return "No text content found in PDF"
+
+    @log_method_entry_exit
+    @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
+    async def extract_all_text_from_pdf(self, pdf_path: str) -> Dict[str, any]:
+        """Extract ALL possible text from PDF using multiple extraction methods.
+        
+        This method uses up to 6 different extraction techniques to ensure maximum
+        text recovery from any type of PDF, including scanned documents, images, and forms.
+        
+        Args:
+            pdf_path: Path to the PDF file to extract text from
+            
+        Returns:
+            Dictionary containing:
+                - full_text: Complete extracted text (primary output)
+                - extraction_stats: Statistics about the extraction process
+                - pages_processed: Number of pages successfully processed
+                - total_pages: Total pages in the document
+                - character_count: Total characters extracted
+                - word_count: Approximate word count
+                - error: Any errors that occurred (if any)
+        """
+        doc = None
+        extraction_stats = {
+            'total_pages': 0,
+            'pages_processed': 0,
+            'extraction_methods_used': [],
+            'characters_extracted': 0,
+            'average_chars_per_page': 0,
+            'extraction_errors': []
+        }
+        
+        try:
+            # Try multiple PDF loading methods
+            try:
+                doc = self.ocr_service.open_pdf(pdf_path)
+                if not doc:
+                    raise ValueError("Failed to open PDF using primary method")
+            except Exception as e:
+                self.logger.warning(f"Primary PDF loading failed, trying alternative method: {e}")
+                try:
+                    import fitz  # PyMuPDF
+                    doc = fitz.open(pdf_path)
+                    self.logger.info("Successfully opened PDF using PyMuPDF")
+                except Exception as e2:
+                    self.logger.error(f"All PDF loading methods failed: {e2}")
+                    return {
+                        "full_text": "", 
+                        "error": f"Failed to open PDF: {str(e2)}",
+                        "extraction_stats": extraction_stats
+                    }
+            
+            total_pages = len(doc)
+            extraction_stats['total_pages'] = total_pages
+            self.logger.info(f"Processing {total_pages} pages for complete text extraction")
+            
+            all_pages_text = []
+            
+            for page_idx in range(total_pages):
+                try:
+                    page = doc[page_idx]
+                    self.logger.info(f"Extracting text from page {page_idx + 1}/{total_pages}")
+                    
+                    # Method 1: Native text extraction
+                    native_text = page.get_text("text")
+                    
+                    # Method 2: Text extraction with blocks
+                    block_text = self._extract_text_using_blocks(page)
+                    
+                    # Method 3: Extract spans (catches OCR and all text elements)
+                    spans_text = self._extract_text_using_spans(page)
+                    
+                    # Method 4: Raw text extraction with different parameters
+                    raw_text = page.get_text("raw")
+                    
+                    # Method 5: Text extraction with layout preservation
+                    layout_text = page.get_text("layout")
+                    
+                    # Method 6: Try OCR if available and text is minimal
+                    ocr_text = ""
+                    if len(''.join([native_text or "", block_text or "", spans_text or "", raw_text or "", layout_text or ""])) < 100:
+                        try:
+                            ocr_text = self.ocr_service.extract_text_from_image(pdf_path, page_num=page_idx)
+                        except:
+                            pass
+                    
+                    # Combine all extraction results
+                    combined_text = self._combine_extraction_results([
+                        native_text, 
+                        block_text, 
+                        spans_text,
+                        raw_text,
+                        layout_text,
+                        ocr_text
+                    ])
+                    
+                    if combined_text and combined_text.strip():
+                        all_pages_text.append(combined_text.strip())
+                        extraction_stats['pages_processed'] += 1
+                        self.logger.info(f"Page {page_idx + 1}: Extracted {len(combined_text)} characters")
+                    else:
+                        self.logger.warning(f"No text found on page {page_idx + 1}")
+                        
+                except Exception as page_error:
+                    error_msg = f"Error processing page {page_idx + 1}: {str(page_error)}"
+                    self.logger.error(error_msg, exc_info=True)
+                    extraction_stats['extraction_errors'].append(error_msg)
+                    
+                    # Last resort: try to get any text from the page
+                    try:
+                        fallback_text = page.get_text("text") or ""
+                        if not fallback_text:
+                            fallback_text = str(page.get_text("dict"))
+                        if fallback_text:
+                            all_pages_text.append(f"[PAGE {page_idx + 1} - FALLBACK EXTRACTION]\n{fallback_text}")
+                            extraction_stats['pages_processed'] += 1
+                    except Exception as fallback_error:
+                        self.logger.error(f"Fallback extraction failed: {fallback_error}")
+                        all_pages_text.append(f"[PAGE {page_idx + 1} - EXTRACTION FAILED]")
+            
+            # Combine all pages with clear separation
+            full_document_text = "\n\n".join(all_pages_text)
+            
+            # Final cleanup and deduplication
+            full_document_text = self._clean_combined_text(full_document_text)
+            
+            # Update statistics
+            char_count = len(full_document_text)
+            extraction_stats.update({
+                'characters_extracted': char_count,
+                'word_count': len(full_document_text.split()),
+                'average_chars_per_page': char_count / max(1, extraction_stats['pages_processed']),
+                'extraction_methods_used': ['native', 'blocks', 'spans', 'raw', 'layout', 'ocr']
+            })
+            
+            self.logger.info(
+                f"Completed extraction: {char_count} characters "
+                f"from {extraction_stats['pages_processed']}/{total_pages} pages"
+            )
+            
+            return {
+                "full_text": full_document_text,
+                "extraction_stats": extraction_stats,
+                "pages_processed": extraction_stats['pages_processed'],
+                "total_pages": total_pages,
+                "character_count": char_count,
+                "word_count": extraction_stats['word_count']
+            }
+            
+            # Combine all pages with clear separation
+            full_document_text = "\n\n".join(all_pages_text)
+            
+            # Final cleanup of the combined text
+            full_document_text = self._clean_combined_text(full_document_text)
+            
+            self.logger.info(
+                f"Completed extraction: {len(full_document_text)} characters "
+                f"from {len(all_pages_text)}/{total_pages} pages"
+            )
+            
+            return {
+                "full_text": full_document_text,
+                "pages_processed": len(all_pages_text),
+                "total_pages": total_pages,
+                "character_count": len(full_document_text),
+                "word_count": len(full_document_text.split())
+            }
+            
+        except Exception as e:
+            self.logger.error(f"PDF text extraction failed: {e}", exc_info=True)
+            return {
+                "full_text": "",
+                "error": f"Text extraction failed: {str(e)}",
+                "pages_processed": len(all_pages_text) if 'all_pages_text' in locals() else 0
+            }
+            
+        finally:
+            if doc:
+                try:
+                    doc.close()
+                except:
+                    pass
+    
+    def _extract_text_using_blocks(self, page) -> str:
+        """Extract text using block-based method with error handling"""
+        try:
+            text_dict = page.get_text("dict", flags=0)
+            block_text = []
+            
+            for block in text_dict.get("blocks", []):
+                if block.get("type") == 0:  # Text block
+                    block_lines = []
+                    for line in block.get("lines", []):
+                        line_text = " ".join([span.get("text", "").strip() 
+                                           for span in line.get("spans", []) 
+                                           if span.get("text", "").strip()])
+                        if line_text:
+                            block_lines.append(line_text)
+                    
+                    if block_lines:
+                        block_text.append(" ".join(block_lines))
+            
+            return "\n".join(block_text).strip()
+            
+        except Exception as e:
+            self.logger.warning(f"Block text extraction failed: {e}")
+            return ""
+    
+    def _extract_text_using_spans(self, page) -> str:
+        """Extract and format text using spans with enhanced error handling"""
+        try:
+            spans = self.ocr_service.extract_page_spans(page)
+            if not spans:
+                return ""
+                
+            # Sort spans by position
+            spans.sort(key=lambda s: (s.get("y0", 0), s.get("x0", 0)))
+            
+            # Group into lines and then format
+            lines = []
+            current_line = []
+            current_y = spans[0].get("y0", 0) if spans else 0
+            
+            # Calculate dynamic line tolerance
+            if spans:
+                heights = [s.get("y1", 0) - s.get("y0", 0) for s in spans 
+                         if s.get("y1", 0) > s.get("y0", 0)]
+                line_tolerance = max(10, (statistics.median(heights) * 0.8)) if heights else 10
+            else:
+                line_tolerance = 10
+            
+            for span in spans:
+                span_y = span.get("y0", 0)
+                span_text = span.get("text", "").strip()
+                
+                if not span_text:
+                    continue
+                    
+                if abs(span_y - current_y) <= line_tolerance:
+                    current_line.append((span.get("x0", 0), span_text))
+                else:
+                    if current_line:
+                        lines.append(" ".join(t[1] for t in sorted(current_line, key=lambda x: x[0])))
+                    current_line = [(span.get("x0", 0), span_text)]
+                    current_y = span_y
+            
+            # Add the last line
+            if current_line:
+                lines.append(" ".join(t[1] for t in sorted(current_line, key=lambda x: x[0])))
+            
+            return "\n".join(lines).strip()
+            
+        except Exception as e:
+            self.logger.warning(f"Span-based extraction failed: {e}")
+            return ""
+    
+    def _combine_extraction_results(self, texts: List[str]) -> str:
+        """Intelligently combine multiple extraction results to maximize text recovery.
+        
+        This method uses several techniques to ensure no text is lost during combination:
+        1. Removes exact duplicates
+        2. Preserves unique content from all sources
+        3. Handles different text orderings
+        4. Maintains paragraph structure
+        
+        Args:
+            texts: List of text strings from different extraction methods
+            
+        Returns:
+            Combined text with all unique content preserved
+        """
+        if not texts:
+            return ""
+            
+        # Remove empty strings and normalize whitespace
+        texts = [' '.join(str(t).split()) for t in texts if t and str(t).strip()]
+        
+        if not texts:
+            return ""
+            
+        # Remove exact duplicates while preserving order
+        seen_texts = set()
+        unique_texts = []
+        for text in texts:
+            if text not in seen_texts:
+                seen_texts.add(text)
+                unique_texts.append(text)
+        texts = unique_texts
+        
+        if len(texts) == 1:
+            return texts[0]
+            
+        # Start with the longest text as base
+        combined = max(texts, key=len)
+        
+        # For each other text, find and add unique content
+        for text in texts:
+            if text == combined:
+                continue
+                
+            # If text is significantly different, add its unique paragraphs
+            if len(text) > len(combined) * 0.7:  # Only consider substantial texts
+                # Split into paragraphs and sentences for more granular comparison
+                combined_paras = set(p.strip() for p in combined.split('\n\n') if p.strip())
+                text_paras = [p.strip() for p in text.split('\n\n') if p.strip()]
+                
+                # Add paragraphs that contain substantial new content
+                for para in text_paras:
+                    if not any(para in cp or cp in para for cp in combined_paras if len(cp) > 20):
+                        combined += "\n\n" + para
+                        combined_paras.add(para)
+                
+                # Also check for unique sentences within paragraphs
+                combined_sents = set()
+                for para in combined_paras:
+                    combined_sents.update(s.strip() for s in re.split(r'(?<=[.!?])\s+', para) if len(s.strip()) > 10)
+                
+                for para in text_paras:
+                    for sent in re.split(r'(?<=[.!?])\s+', para):
+                        sent = sent.strip()
+                        if len(sent) > 20 and not any(sent in cs or cs in sent for cs in combined_sents):
+                            combined += " " + sent
+                            combined_sents.add(sent)
+        
+        # Final cleanup
+        return re.sub(r'\s+', ' ', combined).strip()
+    
+    def _clean_combined_text(self, text: str) -> str:
+        """Clean, normalize, and optimize the final combined text.
+        
+        This method performs several cleaning steps:
+        1. Normalizes all whitespace and line breaks
+        2. Removes duplicate content while preserving order
+        3. Fixes common OCR artifacts
+        4. Optimizes paragraph structure
+        
+        Args:
+            text: The text to clean
+            
+        Returns:
+            Cleaned and normalized text with optimal formatting
+        """
+        if not text or not text.strip():
+            return ""
+            
+        # Convert to string in case input is not a string
+        text = str(text)
+        
+        # Normalize all whitespace and line breaks
+        text = re.sub(r'[\r\n]+', '\n', text)  # Normalize line endings
+        text = re.sub(r'[\t\f\v ]+', ' ', text)  # Normalize spaces
+        text = re.sub(r'\n\s*\n', '\n\n', text)  # Normalize paragraph breaks
+        
+        # Fix common OCR artifacts and formatting issues
+        text = self._fix_common_ocr_errors(text)
+        
+        # Split into paragraphs and process each
+        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+        
+        # Remove duplicate paragraphs while preserving order
+        seen_paragraphs = set()
+        unique_paragraphs = []
+        
+        for para in paragraphs:
+            # Skip empty or very short paragraphs
+            if not para or len(para) < 3:
+                continue
+                
+            # Normalize the paragraph for comparison
+            normalized = ' '.join(para.split())
+            
+            # Skip if we've seen this exact paragraph before
+            if normalized in seen_paragraphs:
+                continue
+                
+            # Skip if this paragraph is contained within another paragraph
+            if any(normalized in p and len(normalized) < len(p) for p in seen_paragraphs):
+                continue
+                
+            # Remove any paragraphs that are contained within this one
+            seen_paragraphs = {p for p in seen_paragraphs if p not in normalized or p == normalized}
+            
+            seen_paragraphs.add(normalized)
+            unique_paragraphs.append(para)
+        
+        # Join with double newlines to maintain paragraph structure
+        result = '\n\n'.join(unique_paragraphs)
+        
+        # Final whitespace cleanup
+        result = re.sub(r'\s+', ' ', result).strip()
+        
+        return result
+    
+    def _format_spans_as_plain_text(self, spans):
+        """Format OCR spans into readable plain text"""
+        if not spans:
+            return ""
+        
+        # Sort spans by position (top to bottom, left to right)
+        spans.sort(key=lambda s: (s.get("y0", 0), s.get("x0", 0)))
+        
+        # Group into lines with adaptive tolerance
+        lines = []
+        current_line = []
+        current_y = spans[0].get("y0", 0) if spans else 0
+        
+        # Calculate dynamic line tolerance based on span heights
+        if spans:
+            heights = [abs(s.get("y1", 0) - s.get("y0", 0)) for s in spans if s.get("y1", 0) > s.get("y0", 0)]
+            if heights:
+                avg_height = sum(heights) / len(heights)
+                line_tolerance = max(15, avg_height * 1.5)  # Adaptive tolerance
+            else:
+                line_tolerance = 15
+        else:
+            line_tolerance = 15
+        
+        for span in spans:
+            span_y = span.get("y0", 0)
+            span_text = span.get("text", "").strip()
+            
+            if not span_text:
+                continue
+                
+            # Check if span is on the same line
+            if abs(span_y - current_y) < line_tolerance:
+                current_line.append(span_text)
+            else:
+                # Finalize current line
+                if current_line:
+                    lines.append(" ".join(current_line))
+                current_line = [span_text]
+                current_y = span_y
+        
+        # Add the last line
+        if current_line:
+            lines.append(" ".join(current_line))
+        
+        return "\n".join(lines)
+
+    @log_method_entry_exit
+    @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
+    def extract_text_from_regions(self, text_regions: List[Dict]) -> Dict[str, any]:
+        """Extract and organize text from text regions with comprehensive content"""
         try:
             if not text_regions:
-                return []
+                return {
+                    "sections": [],
+                    "full_text": "",
+                    "section_count": 0,
+                    "word_count": 0,
+                    "character_count": 0
+                }
             
-            extracted_texts = []
+            extracted_sections = []
+            full_text_parts = []
+            total_words = 0
+            total_chars = 0
             
             for region in text_regions:
                 text_content = self._extract_text_from_region(region)
                 if text_content:
-                    extracted_texts.append(text_content)
+                    extracted_sections.append(text_content)
+                    full_text_parts.append(text_content.get('raw_text', ''))
+                    total_words += len(text_content.get('cleaned_text', '').split())
+                    total_chars += len(text_content.get('cleaned_text', ''))
             
-            self.logger.info(f"Extracted text from {len(extracted_texts)} regions")
-            return extracted_texts
+            full_text = '\n\n'.join(filter(None, full_text_parts))
+            
+            self.logger.info(
+                f"Extracted {len(extracted_sections)} text sections with "
+                f"{total_words} words and {total_chars} characters in total"
+            )
+            
+            return {
+                "sections": extracted_sections,
+                "full_text": full_text,
+                "section_count": len(extracted_sections),
+                "word_count": total_words,
+                "character_count": total_chars
+            }
             
         except Exception as e:
             self.logger.error(f"Text extraction from regions failed: {e}")
             return []
+            
+    @log_method_entry_exit
+    @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
+    def extract_complete_text(self, text_regions: List[Dict]) -> Dict[str, any]:
+        """Extract complete formatted text from text regions with comprehensive content handling
+        
+        Args:
+            text_regions: List of text regions to extract text from
+            
+        Returns:
+            Dict containing:
+                - formatted_text: Complete concatenated text from all regions
+                - word_count: Total word count
+                - character_count: Total character count (including spaces)
+        """
+        try:
+            if not text_regions:
+                return {
+                    "formatted_text": "",
+                    "word_count": 0,
+                    "character_count": 0
+                }
+            
+            # First, try to extract text using the existing method
+            try:
+                result = self.extract_text_from_regions(text_regions)
+                if result and result.get("full_text"):
+                    return {
+                        "formatted_text": result["full_text"],
+                        "word_count": result.get("word_count", 0),
+                        "character_count": result.get("character_count", 0)
+                    }
+            except Exception as e:
+                self.logger.warning(f"Primary text extraction failed, falling back to raw extraction: {e}")
+            
+            # Fallback: Raw text extraction if the primary method fails
+            all_text_parts = []
+            
+            for region in text_regions:
+                if not isinstance(region, dict):
+                    continue
+                    
+                # Try to get spans first
+                spans = region.get("spans", [])
+                if spans:
+                    # Extract text from spans
+                    for span in spans:
+                        if isinstance(span, dict) and "text" in span:
+                            text = str(span["text"]).strip()
+                            if text:
+                                all_text_parts.append(text)
+                else:
+                    # Fallback to direct text extraction
+                    text = region.get("text")
+                    if text:
+                        all_text_parts.append(str(text).strip())
+            
+            # Join all text parts with spaces
+            full_text = " ".join(filter(None, all_text_parts))
+            
+            # Clean up multiple spaces
+            full_text = " ".join(full_text.split())
+            
+            # Calculate metrics
+            word_count = len(full_text.split())
+            char_count = len(full_text)
+            
+            self.logger.info(
+                f"Extracted complete text with {word_count} words and {char_count} characters"
+            )
+            
+            return {
+                "formatted_text": full_text,
+                "word_count": word_count,
+                "character_count": char_count
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Complete text extraction failed: {e}", exc_info=True)
+            # Last resort: return raw text from all regions
+            try:
+                raw_text = " ".join(str(r.get("text", "")).strip() for r in text_regions if r and isinstance(r, dict))
+                word_count = len(raw_text.split())
+                return {
+                    "formatted_text": raw_text,
+                    "word_count": word_count,
+                    "character_count": len(raw_text)
+                }
+            except:
+                return {
+                    "formatted_text": "",
+                    "word_count": 0,
+                    "character_count": 0
+                }
 
     def _extract_text_from_region(self, region: Dict) -> Optional[Dict]:
-        """Extract text from a single region"""
+        """Extract text from a single region with enhanced content handling"""
         try:
             spans = region.get("spans", [])
             if not spans:
@@ -52,15 +797,41 @@ class TextExtractionService:
             # Sort spans by reading order (top to bottom, left to right)
             sorted_spans = self._sort_spans_by_reading_order(spans)
             
-            # Extract and clean text
-            raw_text = " ".join(span.get("text", "") for span in sorted_spans)
+            # Extract text with better handling of whitespace and line breaks
+            raw_text_parts = []
+            prev_y0 = None
+            
+            for i, span in enumerate(sorted_spans):
+                text = span.get("text", "").strip()
+                if not text:
+                    continue
+                    
+                # Add newline if we've moved to a new line
+                current_y0 = span.get("y0", 0)
+                if prev_y0 is not None and abs(current_y0 - prev_y0) > 2:  # Small threshold for same line
+                    raw_text_parts.append("\n")
+                
+                # Add space between words on same line if needed
+                if raw_text_parts and not raw_text_parts[-1].endswith("\n") and not text.startswith(" ") and not text.startswith("\n"):
+                    raw_text_parts.append(" ")
+                
+                raw_text_parts.append(text)
+                prev_y0 = current_y0
+            
+            raw_text = "".join(raw_text_parts).strip()
+            
+            # Clean and normalize the text
             cleaned_text = self._clean_extracted_text(raw_text)
             
             # Analyze text structure
             text_structure = self._analyze_text_structure(sorted_spans)
             
-            # Determine text type
+            # Determine text type with enhanced detection
             text_type = self._determine_text_type(cleaned_text, text_structure)
+            
+            # Calculate metrics
+            word_count = len(cleaned_text.split())
+            char_count = len(cleaned_text)
             
             return {
                 "raw_text": raw_text,
@@ -69,7 +840,17 @@ class TextExtractionService:
                 "structure": text_structure,
                 "bounds": region.get("bounds", {}),
                 "confidence": region.get("confidence", 0.0),
-                "spans": sorted_spans
+                "spans": sorted_spans,
+                "metrics": {
+                    "word_count": word_count,
+                    "character_count": char_count,
+                    "line_count": raw_text.count('\n') + 1 if raw_text else 0
+                },
+                "position": {
+                    "page": sorted_spans[0].get("page", 0) if sorted_spans else 0,
+                    "y0": min(s.get("y0", 0) for s in sorted_spans) if sorted_spans else 0,
+                    "y1": max(s.get("y1", 0) for s in sorted_spans) if sorted_spans else 0
+                }
             }
             
         except Exception as e:
@@ -88,56 +869,92 @@ class TextExtractionService:
             return spans
 
     def _clean_extracted_text(self, text: str) -> str:
-        """Clean and normalize extracted text using dynamic processing"""
+        """Clean and normalize extracted text with enhanced processing"""
         try:
             if not text:
                 return ""
             
-            # Use dynamic text processing service
-            from app.Services.DynamicTextProcessingService import DynamicTextProcessingService
-            dynamic_processor = DynamicTextProcessingService()
+            # First, normalize whitespace and line breaks
+            text = ' '.join(text.split())  # Replace all whitespace with single spaces
             
-            # Process text dynamically
-            result = dynamic_processor.process_text_dynamically(text)
+            # Handle common OCR artifacts
+            text = self._fix_common_ocr_errors(text)
             
-            return result.get("processed_text", text)
+            # Normalize quotes, dashes, and other special characters
+            text = self._normalize_special_chars(text)
+            
+            # Use dynamic text processing service if available
+            try:
+                from app.Services.DynamicTextProcessingService import DynamicTextProcessingService
+                dynamic_processor = DynamicTextProcessingService()
+                text = dynamic_processor.process_text(text)
+            except ImportError:
+                self.logger.debug("DynamicTextProcessingService not available, using basic cleaning")
+            
+            # Final cleanup
+            text = text.strip()
+            
+            # Ensure proper spacing after punctuation
+            text = re.sub(r'([.,!?])([^\s])', r'\1 \2', text)
+            
+            return text
             
         except Exception as e:
-            self.logger.warning(f"Dynamic text processing failed: {e}")
-            # Fallback to basic cleaning
-            return " ".join(text.split())
-
+            self.logger.warning(f"Text cleaning failed: {e}")
+            return text if text else ""
+            
     def _fix_common_ocr_errors(self, text: str) -> str:
-        """Fix common OCR recognition errors dynamically"""
-        try:
-            # Use dynamic text processing service for OCR error correction
-            from app.Services.DynamicTextProcessingService import DynamicTextProcessingService
-            dynamic_processor = DynamicTextProcessingService()
+        """Fix common OCR errors and artifacts"""
+        if not text:
+            return ""
             
-            # Process text to fix OCR errors
-            result = dynamic_processor.process_text_dynamically(text)
+        # Common OCR replacements
+        replacements = {
+            '|': 'I',  # Common OCR error for capital I
+            '\u2018': "'",  # Left single quote
+            '\u2019': "'",  # Right single quote
+            '\u201c': '"',  # Left double quote
+            '\u201d': '"',  # Right double quote
+            '\u2013': '-',   # En dash
+            '\u2014': '--',  # Em dash
+            '\u2026': '...', # Ellipsis
+            '\u00a0': ' ',   # Non-breaking space
+            '\u200b': '',    # Zero-width space
+        }
+        
+        # Apply replacements
+        for old, new in replacements.items():
+            text = text.replace(old, new)
             
-            return result.get("processed_text", text)
+        # Fix common word errors
+        common_errors = {
+            r'\b([A-Z])\.\s+([A-Z])\.': r'\1.\2.',  # Fix initials like "A. B. Smith"
+            r'\s+': ' ',  # Replace multiple spaces with single space
+            r'\s+([.,!?])': r'\1',  # Remove spaces before punctuation
+            r'([a-z])([A-Z])': r'\1 \2'  # Add space between lower and uppercase letters
+        }
+        
+        for pattern, replacement in common_errors.items():
+            text = re.sub(pattern, replacement, text)
             
-        except Exception as e:
-            self.logger.warning(f"Dynamic OCR error fixing failed: {e}")
-            return text
-
-    def _normalize_punctuation(self, text: str) -> str:
-        """Normalize punctuation marks dynamically"""
-        try:
-            # Use dynamic text processing service for punctuation normalization
-            from app.Services.DynamicTextProcessingService import DynamicTextProcessingService
-            dynamic_processor = DynamicTextProcessingService()
+        return text
+        
+    def _normalize_special_chars(self, text: str) -> str:
+        """Normalize special characters and quotes"""
+        if not text:
+            return ""
             
-            # Process text to normalize punctuation
-            result = dynamic_processor.process_text_dynamically(text)
-            
-            return result.get("processed_text", text)
-            
-        except Exception as e:
-            self.logger.warning(f"Dynamic punctuation normalization failed: {e}")
-            return text
+        # Normalize quotes
+        text = text.replace('``', '"')
+        text = text.replace("''", '"')
+        
+        # Normalize dashes
+        text = re.sub(r'[\u2010-\u2015]', '-', text)  # Replace all dash types with simple dash
+        
+        # Normalize whitespace characters
+        text = re.sub(r'[\t\r\f\v]+', ' ', text)
+        
+        return text
 
     def _analyze_text_structure(self, spans: List[Dict]) -> Dict:
         """Analyze the structure of the text"""

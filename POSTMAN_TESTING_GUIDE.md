@@ -14,7 +14,7 @@
 - **Description**: Check if the API is running
 - **Expected Response**:
 ```json
-{
+
     "status": "healthy",
     "timestamp": "2024-01-15T10:30:00.000000",
     "service": "OCR Document Processing Service"
@@ -38,7 +38,7 @@
   - Value: Select a PDF file
 - **Expected Response**:
 ```json
-{
+
     "success": true,
     "message": "Successfully extracted table from filename.pdf",
     "rows_extracted": 25,

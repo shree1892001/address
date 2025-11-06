@@ -24,12 +24,56 @@ class FileValidationService:
     @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
     def validate_pdf_file(self, file):
         """Validate that the uploaded file is a PDF"""
-        if not file.filename.lower().endswith(".pdf"):
-            self.logger.warning(f"Invalid file type uploaded: {file.filename}")
+        # Check filename first
+        filename = file.filename or ""
+        filename_lower = filename.lower()
+        
+        # Check content-type
+        content_type = getattr(file, 'content_type', None) or ""
+        if hasattr(file, 'headers'):
+            content_type = content_type or file.headers.get('content-type', '')
+        
+        # Check file content by reading first bytes (PDF files start with %PDF)
+        is_pdf_by_content = False
+        try:
+            # For FastAPI UploadFile, try to read the first bytes to check PDF magic number
+            if hasattr(file, 'file') and hasattr(file.file, 'read'):
+                # Save current position
+                try:
+                    current_pos = file.file.tell()
+                except:
+                    current_pos = None
+                
+                # Read first 4 bytes
+                file.file.seek(0)
+                first_bytes = file.file.read(4)
+                
+                # Reset position
+                if current_pos is not None:
+                    file.file.seek(current_pos)
+                else:
+                    file.file.seek(0)
+                
+                if first_bytes and first_bytes.startswith(b'%PDF'):
+                    is_pdf_by_content = True
+        except Exception as e:
+            self.logger.debug(f"Could not read file content for validation (this is OK): {e}")
+        
+        # Validate: must pass at least one check
+        is_pdf = (
+            filename_lower.endswith(".pdf") or
+            'pdf' in content_type.lower() or
+            is_pdf_by_content
+        )
+        
+        if not is_pdf:
+            self.logger.warning(f"Invalid file type uploaded: filename='{filename}', content-type='{content_type}'")
+            file_ext = filename_lower.split('.')[-1] if '.' in filename_lower else "unknown"
             raise InvalidFileTypeException(
-                file_type=file.filename.split('.')[-1] if '.' in file.filename else "unknown",
+                file_type=file_ext,
                 supported_types=["pdf"]
             )
+        
         return True
 
     @log_method_entry_exit

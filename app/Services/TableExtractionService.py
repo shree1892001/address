@@ -1,6 +1,7 @@
 import pandas as pd
 import subprocess
 import os
+import re
 from datetime import datetime
 
 try:
@@ -36,6 +37,10 @@ from app.Services.FileSaveService import FileSaveService
 from app.Services.DocumentClassificationService import DocumentClassificationService
 from app.Services.TextExtractionService import TextExtractionService
 from app.Services.TextOnlyExtractionService import TextOnlyExtractionService
+from app.Services.TextExtractionHelpers import (
+    extract_from_text_dict, extract_from_blocks, clean_raw_text,
+    reconstruct_text_from_words, post_process_text
+)
 
 
 class TableExtractionService:
@@ -290,6 +295,8 @@ class TableExtractionService:
                 header_idx = potential_header_indices[0]
                 header_row = self._extract_best_header_dynamically(table, header_idx, expected_cols)
                 if header_row:
+                    # Merge split headers across adjacent cells (e.g., "Joining" + "Date" -> "Joining Date")
+                    header_row = self._merge_split_headers_in_row(header_row, table, header_idx, expected_cols)
                     header_found = True
                     i = header_idx + 1
                     # Skip any continuation rows that are part of the header
@@ -307,18 +314,48 @@ class TableExtractionService:
                 
                 # If we have a header, process data rows
                 if header_found:
-                    # Check for merged header-data cells
+                    # First, check if first data row has header continuation words that should be merged with header
+                    # This handles cases where "Date" appears in the first data row but should be part of "Joining Date" header
+                    if len(pre_table) == 0:  # This is the first data row
+                        header_row, clean_row = self._fix_split_headers_in_data_row(header_row, clean_row, expected_cols)
+                    
+                    # Check for merged header-data cells (but be careful not to split multi-word headers)
                     for col_idx, cell in enumerate(clean_row):
-                        if '\n' in cell:
-                            parts = cell.split('\n')
+                        if '\n' in cell and col_idx < len(header_row):
+                            parts = [p.strip() for p in cell.split('\n') if p.strip()]
                             if len(parts) >= 2:
-                                # If first part looks like a header and we don't have one yet
-                                if col_idx < len(header_row) and \
+                                current_header = header_row[col_idx].strip() if col_idx < len(header_row) else ""
+                                
+                                # Generic logic: Determine if parts should be merged into header or split
+                                should_merge_with_header = self._should_merge_parts_with_header(
+                                    current_header, parts, col_idx, header_row
+                                )
+                                
+                                if should_merge_with_header:
+                                    # Merge first part(s) with header, keep rest as data
+                                    parts_to_merge = []
+                                    parts_for_data = []
+                                    
+                                    # Determine how many parts belong to header
+                                    for i, part in enumerate(parts):
+                                        if self._is_likely_header_part(part, current_header, i, len(parts)):
+                                            parts_to_merge.append(part)
+                                        else:
+                                            parts_for_data = parts[i:]
+                                            break
+                                    
+                                    if parts_to_merge:
+                                        # Complete the header
+                                        merged_header = f"{current_header} {' '.join(parts_to_merge)}".strip()
+                                        header_row[col_idx] = merged_header
+                                        # Keep the rest as data
+                                        clean_row[col_idx] = '\n'.join(parts_for_data) if parts_for_data else ""
+                                # If header cell is empty or very short, and first part looks like header
+                                elif (not current_header or len(current_header) < 3) and \
                                    self.table_processing_service.is_header_like(parts[0]) and \
                                    not self.table_processing_service.is_header_like(parts[1]):
-                                    # Update the header if it's not already set
-                                    if col_idx < len(header_row):
-                                        header_row[col_idx] = parts[0]
+                                    # Update the header
+                                    header_row[col_idx] = parts[0]
                                     # Keep the rest as data
                                     clean_row[col_idx] = '\n'.join(parts[1:])
                     
@@ -727,7 +764,7 @@ class TableExtractionService:
     @monitor_performance
     @handle_general_operations(severity=ExceptionSeverity.HIGH)
     async def extract_all_content_from_pdf(self, file):
-        """Extract all content from PDF with table prioritization"""
+        """Extract all text content from PDF - works with various templates and formats"""
         temp_files = []
         
         try:
@@ -736,103 +773,363 @@ class TableExtractionService:
             
             # Save uploaded file
             file_paths = await self.file_upload_service.save_uploaded_file(file)
-            temp_files.extend([file_paths["pdf_path"], file_paths["excel_path"]])
+            temp_files.append(file_paths["pdf_path"])
             
-            # Extract all content using enhanced services
+            # Extract all text content using comprehensive method
             content_result = await self._extract_all_content_data(file_paths["pdf_path"])
-            if not content_result:
-                self.logger.warning(f"No content found in document: {file.filename}")
-                raise NoTableFoundException(file_paths["pdf_path"])
             
-            # Save results
-            self.file_save_service.save_results(content_result.get("tables", []), 
-                                              file_paths["json_path"], 
-                                              file_paths["csv_path"])
+            if not content_result or not content_result.get("extracted_text"):
+                self.logger.warning(f"No readable content found in document: {file.filename}")
+                # Try one more fallback with basic file reading
+                try:
+                    with open(file_paths["pdf_path"], 'rb') as f:
+                        # Check if file is readable
+                        f.read(1024)
+                    raise NoTableFoundException(file_paths["pdf_path"], details={
+                        "reason": "PDF appears to be image-based or corrupted",
+                        "suggestion": "Try converting to searchable PDF first"
+                    })
+                except Exception:
+                    raise NoTableFoundException(file_paths["pdf_path"], details={
+                        "reason": "Unable to read PDF file",
+                        "suggestion": "Check if file is valid PDF format"
+                    })
             
-            # Convert tables to DataFrame and save as Excel
-            if content_result.get("tables"):
-                df = pd.DataFrame(content_result["tables"][0].get("data", [])[1:], 
-                                  columns=content_result["tables"][0].get("data", [])[0] if content_result["tables"][
-                                      0].get("data") else [])
-                df.to_excel(file_paths["excel_path"], index=False)
+            # Return the extracted text directly
+            extracted_text = content_result.get("extracted_text", "")
             
-            # Prepare comprehensive response
+            # Basic validation of extracted content
+            if len(extracted_text.strip()) < 10:
+                self.logger.warning(f"Very little content extracted from {file.filename}: {len(extracted_text)} characters")
+            
             response = {
-                "success": True,
-                "message": f"Successfully extracted content from {file.filename}",
-                "document_type": content_result.get("document_type", "unknown"),
-                "tables": content_result.get("tables", []),
-                "text_content": content_result.get("text_content", {}),
-                "content_priority": content_result.get("content_priority", []),
-                "confidence": content_result.get("confidence", 0.0),
-                "excel_file": file_paths["excel_path"] if content_result.get("tables") else None,
-                "timestamp": datetime.now().isoformat()
+                "extracted_text": extracted_text
             }
             
-            self.logger.info(
-                f"Successfully processed {file.filename}: {len(content_result.get('tables', []))} tables, {content_result.get('text_content', {}).get('section_count', 0)} text sections")
+            self.logger.info(f"Successfully processed {file.filename}: {len(extracted_text)} characters extracted")
             return response
             
         except Exception as e:
-            self.logger.error(f"Comprehensive content extraction failed: {e}")
+            self.logger.error(f"Content extraction failed for {file.filename}: {e}")
             # Cleanup temp files on error
+            self.file_upload_service.cleanup_temp_files(temp_files)
             raise
 
     async def _extract_all_content_data(self, pdf_path):
-        """Extract all content data from PDF using enhanced services"""
+        """Comprehensive PDF text extraction - extracts ALL readable text from the document"""
         try:
-            # Open PDF
-            doc = self.ocr_service.open_pdf(pdf_path)
-            all_spans = []
+            self.logger.info(f"Starting complete text extraction from: {pdf_path}")
             
-            # Process each page with enhanced OCR
-            for page_idx, page in enumerate(doc):
-                self.logger.info(f"Processing page {page_idx + 1} with enhanced OCR")
-                spans = self.ocr_service.extract_page_spans(page)
-                all_spans.extend(spans)
+            all_extracted_text = []
+            extraction_methods = []
             
-            if not all_spans:
-                self.logger.warning("No text found in document.")
+            # Method 1: PyMuPDF comprehensive extraction
+            try:
+                import fitz
+                doc = fitz.open(pdf_path)
+                
+                for page_num in range(len(doc)):
+                    page = doc[page_num]
+                    page_text_parts = []
+                    
+                    # Extract using multiple methods and combine
+                    methods_tried = []
+                    
+                    # 1. Standard text extraction
+                    try:
+                        standard_text = page.get_text()
+                        if standard_text.strip():
+                            page_text_parts.append(standard_text)
+                            methods_tried.append("standard")
+                    except:
+                        pass
+                    
+                    # 2. Dictionary-based detailed extraction (CRITICAL for Canva PDFs)
+                    try:
+                        text_dict = page.get_text("dict", flags=11)  # flags=11 for comprehensive extraction
+                        dict_text = ""
+                        for block in text_dict.get("blocks", []):
+                            if block.get("type") == 0:  # Text block
+                                for line in block.get("lines", []):
+                                    line_text = ""
+                                    for span in line.get("spans", []):
+                                        span_text = span.get("text", "")
+                                        if span_text.strip():
+                                            line_text += span_text + " "
+                                    if line_text.strip():
+                                        dict_text += line_text.strip() + "\n"
+                        
+                        if dict_text.strip():
+                            page_text_parts.append(dict_text)
+                            methods_tried.append("dictionary")
+                    except:
+                        pass
+                    
+                    # 2b. Extract from structured content tree (for Canva PDFs with StructTreeRoot)
+                    try:
+                        struct_text = ""
+                        text_dict = page.get_text("dict", flags=11)
+                        for block in text_dict.get("blocks", []):
+                            if block.get("type") == 0:  # Text block
+                                for line in block.get("lines", []):
+                                    line_parts = []
+                                    for span in line.get("spans", []):
+                                        span_text = span.get("text", "").strip()
+                                        if span_text:
+                                            line_parts.append(span_text)
+                                    if line_parts:
+                                        struct_text += " ".join(line_parts) + "\n"
+                        
+                        if struct_text.strip():
+                            page_text_parts.append(struct_text)
+                            methods_tried.append("structured")
+                    except:
+                        pass
+                    
+                    # 2c. Try multiple PyMuPDF extraction modes
+                    try:
+                        # Try raw extraction
+                        raw_text = page.get_text("raw")
+                        if raw_text.strip():
+                            page_text_parts.append(raw_text)
+                            methods_tried.append("raw")
+                    except:
+                        pass
+                    
+                    try:
+                        # Try layout extraction
+                        layout_text = page.get_text("layout")
+                        if layout_text.strip():
+                            page_text_parts.append(layout_text)
+                            methods_tried.append("layout")
+                    except:
+                        pass
+                    
+                    # 3. Block-based extraction
+                    try:
+                        blocks = page.get_text("blocks")
+                        block_text = ""
+                        for block in blocks:
+                            if len(block) >= 5:  # Valid text block
+                                text = block[4].strip()
+                                if text:
+                                    block_text += text + "\n"
+                        
+                        if block_text.strip() and len(block_text) > len(page_text_parts[0] if page_text_parts else ""):
+                            page_text_parts = [block_text]  # Replace if better
+                            methods_tried = ["blocks"]
+                    except:
+                        pass
+                    
+                    # Combine all extractions to get complete text (don't just use the longest)
+                    if page_text_parts:
+                        # Combine all unique text parts
+                        combined_text = ""
+                        seen_text = set()
+                        for text_part in page_text_parts:
+                            # Add unique lines to avoid duplicates
+                            for line in text_part.split('\n'):
+                                line_stripped = line.strip()
+                                if line_stripped and line_stripped.lower() not in seen_text:
+                                    combined_text += line_stripped + "\n"
+                                    seen_text.add(line_stripped.lower())
+                        
+                        if combined_text.strip():
+                            all_extracted_text.append(f"\n=== PAGE {page_num + 1} ===\n{combined_text.strip()}")
+                            self.logger.debug(f"Page {page_num + 1}: Extracted {len(combined_text)} chars using {methods_tried}")
+                        else:
+                            # Fallback to longest if combination failed
+                            best_text = max(page_text_parts, key=len)
+                            all_extracted_text.append(f"\n=== PAGE {page_num + 1} ===\n{best_text.strip()}")
+                            self.logger.debug(f"Page {page_num + 1}: Using best extraction: {len(best_text)} chars")
+                
                 doc.close()
-                raise NoTableFoundException(pdf_path, details={"reason": "No text spans found in document"})
+                
+                if all_extracted_text:
+                    pymupdf_result = "\n\n".join(all_extracted_text)
+                    extraction_methods.append("PyMuPDF-Complete")
+                    self.logger.info(f"PyMuPDF complete extraction: {len(pymupdf_result)} characters")
+                    
+                    # Clean and return immediately if we got good content
+                    if len(pymupdf_result) > 500:  # Substantial content
+                        final_text = self._clean_extracted_text(pymupdf_result)
+                        return {"extracted_text": final_text}
+                    
+            except Exception as e:
+                self.logger.warning(f"PyMuPDF complete extraction failed: {e}")
             
-            # Classify document content and prioritize
-            classification_result = self.document_classification_service.classify_document_content(all_spans)
+            # Method 2: pdfplumber comprehensive extraction
+            try:
+                import pdfplumber
+                with pdfplumber.open(pdf_path) as pdf:
+                    plumber_pages = []
+                    
+                    for page_num, page in enumerate(pdf.pages):
+                        page_methods = []
+                        
+                        # Try standard extraction
+                        try:
+                            text1 = page.extract_text()
+                            if text1 and text1.strip():
+                                page_methods.append(("standard", text1))
+                        except:
+                            pass
+                        
+                        # Try layout-aware extraction
+                        try:
+                            text2 = page.extract_text(layout=True)
+                            if text2 and text2.strip():
+                                page_methods.append(("layout", text2))
+                        except:
+                            pass
+                        
+                        # Try word-based reconstruction
+                        try:
+                            words = page.extract_words()
+                            if words:
+                                reconstructed = self._reconstruct_from_words(words)
+                                if reconstructed and reconstructed.strip():
+                                    page_methods.append(("words", reconstructed))
+                        except:
+                            pass
+                        
+                        # Use the method that extracted the most text
+                        if page_methods:
+                            best_method, best_text = max(page_methods, key=lambda x: len(x[1]))
+                            plumber_pages.append(f"\n=== PAGE {page_num + 1} ===\n{best_text.strip()}")
+                    
+                    if plumber_pages:
+                        plumber_result = "\n\n".join(plumber_pages)
+                        extraction_methods.append("pdfplumber-Complete")
+                        self.logger.info(f"pdfplumber complete extraction: {len(plumber_result)} characters")
+                        
+                        # Use if better than PyMuPDF or if PyMuPDF failed
+                        if len(plumber_result) > len("\n\n".join(all_extracted_text) if all_extracted_text else ""):
+                            final_text = self._clean_extracted_text(plumber_result)
+                            return {"extracted_text": final_text}
+                        
+            except Exception as e:
+                self.logger.warning(f"pdfplumber complete extraction failed: {e}")
             
-            # Extract tables using advanced detection
-            tables = []
-            for table_region in classification_result.get("table_regions", []):
-                table_data = await self._extract_table_from_region(table_region, all_spans)
-                if table_data:
-                    tables.append(table_data)
+            # Method 3: PyPDF2 as fallback
+            try:
+                import PyPDF2
+                with open(pdf_path, 'rb') as f:
+                    reader = PyPDF2.PdfReader(f)
+                    pypdf2_pages = []
+                    
+                    for page_num, page in enumerate(reader.pages):
+                        page_text = page.extract_text()
+                        if page_text and page_text.strip():
+                            pypdf2_pages.append(f"\n=== PAGE {page_num + 1} ===\n{page_text.strip()}")
+                    
+                    if pypdf2_pages:
+                        pypdf2_result = "\n\n".join(pypdf2_pages)
+                        extraction_methods.append("PyPDF2-Complete")
+                        self.logger.info(f"PyPDF2 complete extraction: {len(pypdf2_result)} characters")
+                        
+                        final_text = self._clean_extracted_text(pypdf2_result)
+                        return {"extracted_text": final_text}
+                        
+            except Exception as e:
+                self.logger.warning(f"PyPDF2 complete extraction failed: {e}")
             
-            # Extract text content
-            text_content = {}
-            text_regions = classification_result.get("text_regions", [])
-            if text_regions:
-                extracted_texts = self.text_extraction_service.extract_text_from_regions(text_regions)
-                text_content = self.text_extraction_service.format_extracted_text(extracted_texts)
+            # If we have any extracted text, return it
+            if all_extracted_text:
+                final_result = "\n\n".join(all_extracted_text)
+                final_text = self._clean_extracted_text(final_result)
+                self.logger.info(f"Returning partial extraction: {len(final_text)} characters")
+                return {"extracted_text": final_text}
             
-            doc.close()
+            # Method 4: OCR as last resort
+            try:
+                if self._is_scanned_pdf(pdf_path):
+                    self.logger.info("Attempting OCR extraction...")
+                    ocr_pdf_path = await self._convert_to_searchable_pdf(pdf_path)
+                    if ocr_pdf_path and ocr_pdf_path != pdf_path:
+                        ocr_result = await self._extract_all_content_data(ocr_pdf_path)
+                        if ocr_result and ocr_result.get("extracted_text"):
+                            return ocr_result
+            except Exception as e:
+                self.logger.warning(f"OCR extraction failed: {e}")
             
-            result = {
-                "document_type": classification_result.get("document_type", "unknown"),
-                "tables": tables,
-                "text_content": text_content,
-                "content_priority": classification_result.get("content_priority", []),
-                "confidence": classification_result.get("confidence", 0.0),
-                "analysis": classification_result.get("analysis", {})
-            }
-            
-            self.logger.info(
-                f"Successfully extracted content: {len(tables)} tables, {text_content.get('section_count', 0)} text sections")
-            return result
+            raise NoTableFoundException(pdf_path, details={
+                "reason": "No readable text content found in PDF",
+                "methods_tried": extraction_methods,
+                "suggestion": "PDF may be image-based or corrupted"
+            })
             
         except Exception as e:
-            self.logger.error(f"All content extraction failed: {e}")
-            if 'doc' in locals() and doc:
-                doc.close()
+            self.logger.error(f"Complete text extraction failed: {e}", exc_info=True)
             raise
+    
+    def _reconstruct_from_words(self, words):
+        """Reconstruct text from word objects with proper spacing and line breaks"""
+        try:
+            if not words:
+                return ""
+            
+            # Sort words by position (top to bottom, left to right)
+            sorted_words = sorted(words, key=lambda w: (w.get('top', 0), w.get('x0', 0)))
+            
+            lines = []
+            current_line = []
+            current_top = None
+            line_tolerance = 3  # pixels
+            
+            for word in sorted_words:
+                word_text = word.get('text', '').strip()
+                if not word_text:
+                    continue
+                
+                word_top = word.get('top', 0)
+                
+                # Check if this word starts a new line
+                if current_top is None or abs(word_top - current_top) > line_tolerance:
+                    # Save previous line
+                    if current_line:
+                        lines.append(' '.join(current_line))
+                    current_line = [word_text]
+                    current_top = word_top
+                else:
+                    # Same line
+                    current_line.append(word_text)
+            
+            # Add the last line
+            if current_line:
+                lines.append(' '.join(current_line))
+            
+            return '\n'.join(lines)
+            
+        except Exception as e:
+            self.logger.debug(f"Word reconstruction failed: {e}")
+            return ""
+    
+    def _clean_extracted_text(self, text):
+        """Clean and format extracted text for better readability"""
+        try:
+            import re
+            
+            # Remove page separators for cleaner output
+            cleaned = re.sub(r'\n=== PAGE \d+ ===\n', '\n\n', text)
+            
+            # Fix spacing issues
+            cleaned = re.sub(r'[ \t]+', ' ', cleaned)  # Multiple spaces to single
+            cleaned = re.sub(r'\n\s*\n\s*\n+', '\n\n', cleaned)  # Multiple newlines to double
+            
+            # Fix common extraction artifacts
+            cleaned = re.sub(r'([a-z])([A-Z])', r'\1 \2', cleaned)  # camelCase spacing
+            cleaned = re.sub(r'(\w)(\d)', r'\1 \2', cleaned)  # word-number spacing
+            cleaned = re.sub(r'(\d)(\w)', r'\1 \2', cleaned)  # number-word spacing
+            
+            # Clean up email and phone formatting
+            cleaned = re.sub(r'(\+\d{1,3})\s*(\d)', r'\1 \2', cleaned)
+            
+            return cleaned.strip()
+            
+        except Exception as e:
+            self.logger.debug(f"Text cleaning failed: {e}")
+            return text
 
     async def _extract_table_from_region(self, table_region, all_spans):
         """Extract table data from a specific region"""
@@ -883,12 +1180,34 @@ class TableExtractionService:
             return None
 
     def _extract_best_header_dynamically(self, table, current_index, expected_cols):
-        """Extract and merge multi-line English headers"""
+        """Extract and merge multi-line English headers, handling multi-word headers properly"""
         try:
             if current_index >= len(table):
                 return None
             
             current_row = [cell.strip() for cell in table[current_index]]
+            
+            # First, check if any cells in current row have newlines that might be multi-word headers
+            # For example: "Joining\nDate" should become "Joining Date"
+            processed_row = []
+            for cell in current_row:
+                if '\n' in cell:
+                    # Check if this looks like a multi-word header (all parts are header-like)
+                    parts = [p.strip() for p in cell.split('\n') if p.strip()]
+                    if len(parts) >= 2:
+                        # Generic check: Are all parts likely header components?
+                        if self._are_parts_multi_word_header(parts):
+                            # Merge into single header: "Joining Date"
+                            processed_row.append(" ".join(parts))
+                        else:
+                            # Keep as is (might be header + data)
+                            processed_row.append(cell)
+                    else:
+                        processed_row.append(cell)
+                else:
+                    processed_row.append(cell)
+            
+            current_row = processed_row
             
             # Check if current row is English header
             if self.table_processing_service.is_english_row(current_row):
@@ -957,6 +1276,295 @@ class TableExtractionService:
             else:
                 merged.append((first_cell or second_cell).strip())
         return merged
+    
+    def _are_parts_multi_word_header(self, parts):
+        """
+        Generic method to determine if parts should be merged as a multi-word header.
+        Uses heuristics instead of hardcoded word lists.
+        """
+        if not parts or len(parts) < 2:
+            return False
+        
+        # Check if all parts are header-like
+        all_header_like = all(
+            self.table_processing_service.is_header_like(part) 
+            for part in parts
+        )
+        
+        if not all_header_like:
+            return False
+        
+        # Additional heuristics:
+        # 1. All parts should be relatively short (typical header words)
+        avg_length = sum(len(part) for part in parts) / len(parts)
+        if avg_length > 20:  # Too long for typical header words
+            return False
+        
+        # 2. Parts should have similar characteristics (all capitalized, all lowercase, etc.)
+        capitalization_patterns = []
+        for part in parts:
+            if part and part[0].isupper():
+                capitalization_patterns.append('title')
+            elif part.isupper():
+                capitalization_patterns.append('upper')
+            elif part.islower():
+                capitalization_patterns.append('lower')
+            else:
+                capitalization_patterns.append('mixed')
+        
+        # If patterns are consistent, more likely to be a multi-word header
+        pattern_consistency = len(set(capitalization_patterns)) <= 2
+        
+        # 3. Parts should not look like data (dates, numbers, etc.)
+        looks_like_data = any(
+            self._looks_like_data_value(part) for part in parts
+        )
+        
+        # 4. Combined length should be reasonable for a header
+        combined = " ".join(parts)
+        reasonable_header_length = 3 <= len(combined) <= 50
+        
+        return (pattern_consistency and 
+                not looks_like_data and 
+                reasonable_header_length and
+                all_header_like)
+    
+    def _should_merge_parts_with_header(self, current_header, parts, col_idx, header_row):
+        """
+        Generic method to determine if parts should be merged with existing header.
+        Uses heuristics to detect incomplete headers.
+        """
+        if not parts or len(parts) < 2:
+            return False
+        
+        # If header is empty or very short, first part might be header
+        if not current_header or len(current_header.strip()) < 3:
+            first_part = parts[0].strip()
+            return (self.table_processing_service.is_header_like(first_part) and
+                    not self.table_processing_service.is_header_like(parts[1]))
+        
+        # If header exists but seems incomplete
+        header_words = current_header.split()
+        if len(header_words) <= 2:  # Short header might be incomplete
+            first_part = parts[0].strip()
+            
+            # Check if first part complements the header
+            # Heuristics:
+            # 1. First part should be header-like
+            # 2. First part should not be data-like
+            # 3. Combined should make sense as a header
+            if (self.table_processing_service.is_header_like(first_part) and
+                not self._looks_like_data_value(first_part)):
+                
+                # Check if combining makes sense (similar capitalization, reasonable length)
+                combined = f"{current_header} {first_part}".strip()
+                if 3 <= len(combined) <= 50:
+                    # Check if second part looks like data (not header)
+                    if len(parts) > 1 and not self.table_processing_service.is_header_like(parts[1]):
+                        return True
+        
+        return False
+    
+    def _is_likely_header_part(self, part, current_header, index, total_parts):
+        """
+        Generic method to determine if a part is likely a header component.
+        """
+        if not part or not part.strip():
+            return False
+        
+        part = part.strip()
+        
+        # Must be header-like
+        if not self.table_processing_service.is_header_like(part):
+            return False
+        
+        # Should not look like data
+        if self._looks_like_data_value(part):
+            return False
+        
+        # If it's the first part and header is incomplete, more likely to be header
+        if index == 0 and current_header and len(current_header.split()) <= 2:
+            # Check capitalization consistency
+            header_first_char = current_header[0] if current_header else ''
+            part_first_char = part[0] if part else ''
+            
+            # Similar capitalization suggests continuation
+            if (header_first_char.isupper() == part_first_char.isupper() or
+                header_first_char.islower() == part_first_char.islower()):
+                return True
+        
+        # Reasonable length for header word
+        return 2 <= len(part) <= 25
+    
+    def _looks_like_data_value(self, text):
+        """
+        Generic method to determine if text looks like a data value rather than header.
+        """
+        if not text:
+            return False
+        
+        text = text.strip()
+        
+        # Check for date patterns (YYYY-MM-DD, MM/DD/YYYY, etc.)
+        date_patterns = [
+            r'\d{4}-\d{2}-\d{2}',  # YYYY-MM-DD
+            r'\d{2}/\d{2}/\d{4}',   # MM/DD/YYYY
+            r'\d{2}-\d{2}-\d{4}',   # MM-DD-YYYY
+            r'\d{1,2}/\d{1,2}/\d{2,4}',  # Various date formats
+        ]
+        if any(re.search(pattern, text) for pattern in date_patterns):
+            return True
+        
+        # Check for numeric patterns (currency, numbers, etc.)
+        if re.match(r'^[\d,.$€£¥]+$', text.replace(' ', '')):
+            return True
+        
+        # Check for email patterns
+        if '@' in text and '.' in text:
+            return True
+        
+        # Check for URL patterns
+        if text.startswith('http://') or text.startswith('https://') or text.startswith('www.'):
+            return True
+        
+        # Very long text is likely data, not header
+        if len(text) > 30:
+            return True
+        
+        return False
+    
+    def _merge_split_headers_in_row(self, header_row, table, header_idx, expected_cols):
+        """
+        Generic method to merge headers that are split across adjacent cells in the same row.
+        Example: ["ID", "Name", "Department", "Salary", "Joining", "Date"] 
+                 -> ["ID", "Name", "Department", "Salary", "Joining Date", ""]
+        """
+        if not header_row or len(header_row) < 2:
+            return header_row
+        
+        merged_header = list(header_row)  # Work with a copy
+        i = 0
+        
+        while i < len(merged_header) - 1:
+            current_cell = merged_header[i].strip()
+            next_cell = merged_header[i + 1].strip() if i + 1 < len(merged_header) else ""
+            
+            # Check if current cell is incomplete and next cell should be merged
+            if current_cell and next_cell:
+                # Heuristics to determine if they should be merged:
+                # 1. Current cell is short (likely incomplete header)
+                # 2. Next cell is header-like
+                # 3. Combined makes sense as a header
+                # 4. Next cell doesn't look like data
+                
+                current_words = len(current_cell.split())
+                next_words = len(next_cell.split())
+                
+                # If current is short (1-2 words) and next is header-like
+                if (current_words <= 2 and 
+                    next_words <= 2 and
+                    self.table_processing_service.is_header_like(next_cell) and
+                    not self._looks_like_data_value(next_cell)):
+                    
+                    # Check if combining makes sense
+                    combined = f"{current_cell} {next_cell}".strip()
+                    if (3 <= len(combined) <= 50 and
+                        self.table_processing_service.is_header_like(combined)):
+                        
+                        # Check capitalization consistency
+                        current_first = current_cell[0] if current_cell else ''
+                        next_first = next_cell[0] if next_cell else ''
+                        
+                        # Similar capitalization suggests they belong together
+                        if (current_first.isupper() == next_first.isupper() or
+                            (current_first.isupper() and next_first.isupper())):
+                            
+                            # Merge them
+                            merged_header[i] = combined
+                            merged_header[i + 1] = ""  # Clear the next cell
+                            i += 2  # Skip the next cell since we merged it
+                            continue
+            
+            i += 1
+        
+        return merged_header
+    
+    def _fix_split_headers_in_data_row(self, header_row, data_row, expected_cols):
+        """
+        Generic method to fix cases where header continuation words appear in the first data row.
+        Example: Header=["Joining"], Data=["Date 2021-02-15"] 
+                 -> Header=["Joining Date"], Data=["2021-02-15"]
+        """
+        if not header_row or not data_row:
+            return header_row, data_row
+        
+        fixed_header = list(header_row)
+        fixed_data = list(data_row)
+        
+        for col_idx in range(min(len(fixed_header), len(fixed_data))):
+            header_cell = fixed_header[col_idx].strip() if col_idx < len(fixed_header) else ""
+            data_cell = fixed_data[col_idx].strip() if col_idx < len(fixed_data) else ""
+            
+            if not header_cell or not data_cell:
+                continue
+            
+            # Check if data cell starts with a header continuation word
+            data_words = data_cell.split()
+            if len(data_words) >= 2:
+                first_word = data_words[0].strip()
+                rest_data = " ".join(data_words[1:])
+                
+                # Check if first word should be merged with header
+                if (self._is_likely_header_continuation(first_word, header_cell) and
+                    not self._looks_like_data_value(first_word) and
+                    self.table_processing_service.is_header_like(first_word)):
+                    
+                    # Check if rest looks like actual data
+                    if rest_data and (self._looks_like_data_value(rest_data) or 
+                                      len(rest_data) > len(first_word)):
+                        # Merge first word with header, keep rest as data
+                        fixed_header[col_idx] = f"{header_cell} {first_word}".strip()
+                        fixed_data[col_idx] = rest_data
+        
+        return fixed_header, fixed_data
+    
+    def _is_likely_header_continuation(self, word, existing_header):
+        """
+        Generic method to determine if a word is likely a continuation of an existing header.
+        """
+        if not word or not existing_header:
+            return False
+        
+        word = word.strip()
+        existing_header = existing_header.strip()
+        
+        # Must be header-like
+        if not self.table_processing_service.is_header_like(word):
+            return False
+        
+        # Should not look like data
+        if self._looks_like_data_value(word):
+            return False
+        
+        # Existing header should be short (incomplete)
+        header_words = existing_header.split()
+        if len(header_words) > 3:  # Already complete header
+            return False
+        
+        # Check capitalization consistency
+        header_first = existing_header[0] if existing_header else ''
+        word_first = word[0] if word else ''
+        
+        # Similar capitalization suggests continuation
+        capitalization_match = (
+            header_first.isupper() == word_first.isupper() or
+            (header_first.isupper() and word_first.isupper())
+        )
+        
+        # Word should be relatively short (typical header words)
+        reasonable_length = 2 <= len(word) <= 20
+        
+        return capitalization_match and reasonable_length
 
     def _detect_multiple_table_regions(self, all_rows, all_spans):
         """Detect multiple table regions with different structures using enhanced detection"""

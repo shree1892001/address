@@ -12,3 +12,4 @@ jinja2
 requests
 opencv-python
 numpy
+python-docx>=0.8.11
