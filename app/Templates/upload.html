@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Table Extraction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+        .upload-section:hover {
+            border-color: #007bff;
+        }
+        .upload-section.dragover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .upload-btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .upload-btn:hover {
+            background: #0056b3;
+        }
+        .format-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .format-selector label {
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        .format-selector input[type="radio"] {
+            margin-right: 5px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.loading {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Document Table Extraction</h1>
+        
+        <div class="upload-section" id="uploadSection">
+            <p>Drag and drop your PDF file here or click to browse</p>
+            <input type="file" id="fileInput" accept=".pdf" />
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Choose PDF File
+            </button>
+        </div>
+
+        <div class="format-selector">
+            <label>
+                <input type="radio" name="format" value="excel" checked> Excel (.xlsx)
+            </label>
+            <label>
+                <input type="radio" name="format" value="csv"> CSV (.csv)
+            </label>
+        </div>
+
+        <div class="status" id="status"></div>
+        <div class="progress" id="progress" style="display: none;">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <script>
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const progress = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+
+        // Drag and drop functionality
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function showProgress(percent) {
+            progress.style.display = 'block';
+            progressBar.style.width = percent + '%';
+        }
+
+        function hideProgress() {
+            progress.style.display = 'none';
+            progressBar.style.width = '0%';
+        }
+
+        async function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                showStatus('Please select a PDF file.', 'error');
+                return;
+            }
+
+            const format = document.querySelector('input[name="format"]:checked').value;
+            const endpoint = format === 'excel' ? '/api/v1/documents/extract-table' : '/api/v1/documents/extract-table-csv';
+
+            showStatus('Processing document...', 'loading');
+            showProgress(10);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                showProgress(30);
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                showProgress(70);
+
+                if (response.ok) {
+                    showProgress(90);
+                    
+                    if (format === 'excel') {
+                        // For Excel, we get a JSON response with download URL
+                        const data = await response.json();
+                        
+                        if (data.message && data.download_url) {
+                            // Download the file using the provided URL
+                            const downloadResponse = await fetch(data.download_url);
+                            
+                            if (downloadResponse.ok) {
+                                const blob = await downloadResponse.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = data.filename;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                document.body.removeChild(a);
+                                
+                                showProgress(100);
+                                showStatus(`${data.message} - ${data.filename} (${data.rows_extracted} rows extracted)`, 'success');
+                            } else {
+                                showStatus('Error downloading file', 'error');
+                            }
+                        } else {
+                            showStatus('Unexpected response format', 'error');
+                        }
+                    } else {
+                        // For CSV, we get the file directly
+                        const contentDisposition = response.headers.get('content-disposition');
+                        let filename = 'extracted_table.csv';
+                        
+                        if (contentDisposition) {
+                            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                            if (filenameMatch) {
+                                filename = filenameMatch[1];
+                            }
+                        }
+
+                        // Create download link
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+
+                        showProgress(100);
+                        showStatus(`Successfully extracted table data! File downloaded as ${filename}`, 'success');
+                    }
+                } else {
+                    const errorData = await response.json();
+                    showStatus(`Error: ${errorData.detail || 'Failed to process document'}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                hideProgress();
+            }
+        }
+    </script>
+</body>
+</html>

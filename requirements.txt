@@ -1,0 +1,14 @@
+python-bidi
+pytesseract
+arabic-reshaper
+pillow
+pymupdf
+fastapi
+uvicorn
+python-multipart
+openpyxl
+pandas
+jinja2
+requests
+opencv-python
+numpy

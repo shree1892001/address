@@ -1,0 +1,185 @@
+{
+	"info": {
+		"_postman_id": "ocr-extract-api-collection",
+		"name": "OCR Extract API",
+		"description": "API for extracting tables from PDF documents with AOP-based exception handling",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"health"
+					]
+				},
+				"description": "Check if the API is running and healthy"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Interface",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						""
+					]
+				},
+				"description": "Get the HTML upload interface"
+			},
+			"response": []
+		},
+		{
+			"name": "Extract Table from PDF",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": [],
+							"description": "PDF file to extract table from"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/extract-table",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"extract-table"
+					]
+				},
+				"description": "Upload a PDF file and extract table data. Returns Excel file path and metadata."
+			},
+			"response": []
+		},
+		{
+			"name": "Download Extracted CSV",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/download/{{file_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"download",
+						"{{file_id}}"
+					]
+				},
+				"description": "Download the extracted table as CSV file. Replace {{file_id}} with the UUID from extract response."
+			},
+			"response": []
+		},
+		{
+			"name": "Test Download",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/test-download",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"test-download"
+					]
+				},
+				"description": "Test file download functionality with a sample CSV file"
+			},
+			"response": []
+		},
+		{
+			"name": "Simple Table Extraction",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": [],
+							"description": "PDF file to extract table from"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/extract-simple",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"extract-simple"
+					]
+				},
+				"description": "Simplified table extraction that returns the table data directly in the response"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "file_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

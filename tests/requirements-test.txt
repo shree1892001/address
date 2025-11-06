@@ -1,0 +1,32 @@
+# Testing dependencies for OCR Table Extraction API
+
+# Core testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-xdist>=3.0.0
+pytest-asyncio>=0.21.0
+
+# FastAPI testing
+httpx>=0.24.0
+fastapi[all]>=0.100.0
+
+# Mocking and test utilities
+unittest-mock>=1.0.1
+responses>=0.23.0
+
+# Code coverage
+coverage>=7.0.0
+
+# Test data generation
+faker>=18.0.0
+
+# Performance testing
+pytest-benchmark>=4.0.0
+
+# Async testing support
+pytest-asyncio>=0.21.0
+aiofiles>=23.0.0
+
+# Additional utilities
+pytest-html>=3.1.0
+pytest-json-report>=1.5.0

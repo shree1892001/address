@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google-like Address Autocomplete</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        #address-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .suggestions-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            background-color: white;
+            z-index: 1000;
+            position: absolute;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
+        }
+        .suggestion-item.highlighted {
+            background-color: #e8f4f8;
+        }
+        .next-word-container {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        .next-word-option {
+            display: inline-block;
+            margin-right: 8px;
+            padding: 4px 8px;
+            background-color: #e1f5fe;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .next-word-option:hover {
+            background-color: #b3e5fc;
+        }
+        .type-badge {
+            font-size: 12px;
+            color: #666;
+            margin-left: 5px;
+        }
+        .progressive-option {
+            display: inline-block;
+            margin-right: 8px;
+            padding: 4px 8px;
+            background-color: #f0f8ff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #0066cc;
+        }
+        .progressive-option:hover {
+            background-color: #e6f3ff;
+        }
+        .suggestion-main {
+            margin-bottom: 8px;
+        }
+        .progressive-suggestions {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .suggestion-details {
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <h1>Address Autocomplete</h1>
+    <p>Type an address and get Google-like suggestions with next word predictions</p>
+
+    <div class="search-container">
+        <input type="text" id="address-input" placeholder="Start typing an address..." autocomplete="off">
+        <div id="suggestions" class="suggestions-container"></div>
+        <div id="debug-info" style="background: lightblue; padding: 10px; margin: 10px 0; border-radius: 4px;">
+            <strong>Debug Info:</strong> Type "123" to test autocomplete. Check browser console for detailed logs.
+        </div>
+    </div>
+
+    <div id="selected-address" style="display: none;">
+        <h3>Selected Address:</h3>
+        <div id="address-display"></div>
+        <div id="address-components"></div>
+        <div id="address-location"></div>
+    </div>
+
+    <script>
+        const input = document.getElementById('address-input');
+        const suggestionsContainer = document.getElementById('suggestions');
+        let currentSuggestions = [];
+        let highlightedIndex = -1;
+        let lastQuery = '';
+
+        // Debounce function to limit API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+
+        // Fetch suggestions from backend
+        async function fetchSuggestions(query) {
+            try {
+                console.log(`🔍 Fetching suggestions for: "${query}"`);
+                const response = await fetch(`http://localhost:5000/autocomplete?query=${encodeURIComponent(query)}`);
+                console.log(`📡 Response status: ${response.status}`);
+                
+                if (!response.ok) {
+                    console.error(`❌ HTTP Error: ${response.status} - ${response.statusText}`);
+                    return [];
+                }
+                
+                const data = await response.json();
+                console.log(`📦 API Response:`, data);
+
+                if (data.error) {
+                    console.error('❌ API Error:', data.error);
+                    return [];
+                }
+
+                // Handle both old and new API response formats
+                let suggestions = [];
+                if (Array.isArray(data)) {
+                    suggestions = data; // New format returns array directly
+                } else if (data.suggestions) {
+                    suggestions = data.suggestions; // Old format
+                } else {
+                    console.warn('⚠️ Unexpected data format:', data);
+                    suggestions = [];
+                }
+                
+                console.log(`✅ Found ${suggestions.length} suggestions`);
+                
+                // Debug: Check each suggestion for next word options
+                if (Array.isArray(suggestions)) {
+                    suggestions.forEach((suggestion, index) => {
+                        console.log(`🔍 Suggestion ${index + 1} next_word_options:`, suggestion.next_word_options);
+                        console.log(`🔍 Suggestion ${index + 1} next_word_options length:`, suggestion.next_word_options ? suggestion.next_word_options.length : 0);
+                        console.log(`🔍 Suggestion ${index + 1} has next_word_options:`, suggestion.next_word_options && suggestion.next_word_options.length > 0);
+                    });
+                }
+                
+                return suggestions;
+            } catch (error) {
+                console.error('❌ Error fetching suggestions:', error);
+                return [];
+            }
+        }
+
+                // Display suggestions with Google-like progressive autocomplete
+        function displaySuggestions(suggestions) {
+            console.log(`🎨 Displaying ${suggestions.length} suggestions:`, suggestions);
+            suggestionsContainer.innerHTML = '';
+
+            if (suggestions.length === 0) {
+                console.log('📭 No suggestions to display');
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+
+            console.log('🔧 Building suggestion elements...');
+
+            suggestions.forEach((suggestion, index) => {
+                console.log(`📝 Building suggestion ${index + 1}:`, suggestion);
+                console.log(`🔍 Next word prediction: ${suggestion.next_word_prediction}`);
+                console.log(`🔍 Next word options:`, suggestion.next_word_options);
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                
+                // Create the main suggestion text with progressive highlighting
+                const mainText = suggestion.text || suggestion.display || '';
+                const currentInput = input.value.trim();
+                console.log(`🔍 Main text: "${mainText}", Current input: "${currentInput}"`);
+                
+                // Highlight the current input and show next words in darker color
+                let highlightedText = mainText;
+                if (currentInput && mainText.toLowerCase().includes(currentInput.toLowerCase())) {
+                    const startIndex = mainText.toLowerCase().indexOf(currentInput.toLowerCase());
+                    const beforeMatch = mainText.substring(0, startIndex);
+                    const match = mainText.substring(startIndex, startIndex + currentInput.length);
+                    const afterMatch = mainText.substring(startIndex + currentInput.length);
+                    
+                    highlightedText = `
+                        <span style="color: #333;">${beforeMatch}</span>
+                        <span style="color: #333; font-weight: bold;">${match}</span>
+                        <span style="color: #666; font-weight: 500;">${afterMatch}</span>
+                    `;
+                }
+                
+                item.innerHTML = `
+                    <div class="suggestion-main">
+                        <strong>${highlightedText}</strong>
+                    </div>
+                    
+                    ${suggestion.next_word_prediction ? `
+                    <div class="next-word-container">
+                        <span style="color: #666; font-size: 12px;">Next word: </span>
+                        <span class="next-word-option"
+                              onclick="applyNextWord('${suggestion.next_word_prediction}')">
+                            ${suggestion.next_word_prediction}
+                        </span>
+                    </div>
+                    ` : ''}
+                    
+                    ${suggestion.next_word_options && suggestion.next_word_options.length > 0 ? `
+                    <div class="next-word-container">
+                        <span style="color: #666; font-size: 12px;">Other options: </span>
+                        ${suggestion.next_word_options.slice(0, 3).map(opt => `
+                            <span class="next-word-option"
+                                  onclick="applyNextWord('${opt.text}')">
+                                ${opt.text}
+                                <span class="type-badge">${opt.type}</span>
+                            </span>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    ${suggestion.next_word_options && suggestion.next_word_options.length > 0 ? `
+                    <div style="background: yellow; padding: 5px; margin: 5px 0; font-size: 12px;">
+                        DEBUG: Found ${suggestion.next_word_options.length} next word options
+                    </div>
+                    ` : ''}
+                    ${suggestion.next_word_options && suggestion.next_word_options.length > 0 ? `
+                    <div style="background: red; color: white; padding: 5px; margin: 5px 0; font-size: 12px;">
+                        VISIBLE DEBUG: Next word options should be displayed below
+                    </div>
+                    ` : ''}
+                    
+                    ${suggestion.progressive_suggestions && suggestion.progressive_suggestions.length > 0 ? `
+                    <div class="progressive-suggestions">
+                        <span style="color: #666; font-size: 12px;">Complete: </span>
+                        ${suggestion.progressive_suggestions.slice(0, 2).map(prog => `
+                            <span class="progressive-option"
+                                  onclick="applyProgressiveSuggestion('${prog}')">
+                                ${prog}
+                            </span>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="suggestion-details">
+                        <small style="color: #666;">
+                            ${suggestion.address_components.city ? `${suggestion.address_components.city}, ` : ''}
+                            ${suggestion.address_components.state ? `${suggestion.address_components.state}, ` : ''}
+                            ${suggestion.address_components.country || ''}
+                        </small>
+                    </div>
+                `;
+
+                item.addEventListener('click', () => selectSuggestion(index));
+                suggestionsContainer.appendChild(item);
+                console.log(`📦 Added suggestion ${index + 1} to container`);
+                console.log(`🔍 Suggestion ${index + 1} HTML length:`, item.innerHTML.length);
+                console.log(`🔍 Suggestion ${index + 1} contains next-word-container:`, item.innerHTML.includes('next-word-container'));
+            });
+
+            suggestionsContainer.style.display = 'block';
+            highlightedIndex = -1;
+            console.log(`✅ Displayed ${suggestions.length} suggestions, container visible: ${suggestionsContainer.style.display}`);
+            console.log(`🔍 Container element:`, suggestionsContainer);
+            console.log(`🔍 Container children count:`, suggestionsContainer.children.length);
+            console.log(`🔍 Container innerHTML length:`, suggestionsContainer.innerHTML.length);
+            
+            // Update debug info
+            const debugInfo = document.getElementById('debug-info');
+            if (debugInfo) {
+                debugInfo.innerHTML = `<strong>Debug Info:</strong> Displayed ${suggestions.length} suggestions. Container has ${suggestionsContainer.children.length} children.`;
+            }
+        }
+
+        // Apply next word to input
+        window.applyNextWord = function(nextWord) {
+            const currentValue = input.value.trim();
+            const lastSpaceIndex = currentValue.lastIndexOf(' ');
+
+            if (lastSpaceIndex >= 0) {
+                // Replace last partial word
+                input.value = currentValue.substring(0, lastSpaceIndex + 1) + nextWord;
+            } else {
+                // Add as first word
+                input.value = nextWord;
+            }
+
+            input.focus();
+            suggestionsContainer.style.display = 'none';
+            fetchAndDisplaySuggestions(input.value);
+        };
+
+        // Apply progressive suggestion (complete address)
+        window.applyProgressiveSuggestion = function(progressiveText) {
+            input.value = progressiveText;
+            input.focus();
+            suggestionsContainer.style.display = 'none';
+            fetchAndDisplaySuggestions(progressiveText);
+        };
+
+        // Select a suggestion
+        function selectSuggestion(index) {
+            if (index >= 0 && index < currentSuggestions.length) {
+                const selected = currentSuggestions[index];
+                const fullAddress = selected.text || selected.full_address || selected.display_name || '';
+                input.value = fullAddress;
+
+                // Display selected address details
+                document.getElementById('selected-address').style.display = 'block';
+                document.getElementById('address-display').innerHTML = `
+                    <p><strong>${fullAddress}</strong></p>
+                `;
+
+                const components = selected.address_components || {};
+                document.getElementById('address-components').innerHTML = `
+                    <h4>Components:</h4>
+                    <ul>
+                        <li>Street: ${components.street || 'N/A'}</li>
+                        <li>City: ${components.city || 'N/A'}</li>
+                        <li>State: ${components.state || 'N/A'}</li>
+                        <li>Postal Code: ${components.postal_code || 'N/A'}</li>
+                        <li>Country: ${components.country || 'N/A'}</li>
+                    </ul>
+                `;
+
+                const location = selected.location || {};
+                document.getElementById('address-location').innerHTML = `
+                    <h4>Location:</h4>
+                    <p>Latitude: ${location.lat || 'N/A'}, Longitude: ${location.lng || 'N/A'}</p>
+                `;
+
+                suggestionsContainer.style.display = 'none';
+            }
+        }
+
+        // Highlight suggestion
+        function highlightSuggestion(index) {
+            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+            items.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('highlighted');
+                } else {
+                    item.classList.remove('highlighted');
+                }
+            });
+            highlightedIndex = index;
+        }
+
+        // Fetch and display suggestions with debouncing
+        const fetchAndDisplaySuggestions = debounce(async (query) => {
+            console.log(`🔄 Debounced fetch for: "${query}"`);
+            if (query === lastQuery) {
+                console.log('⏭️ Skipping duplicate query');
+                return;
+            }
+            lastQuery = query;
+
+            if (query.length < 2) {
+                console.log('📏 Query too short, hiding suggestions');
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+
+            console.log(`📡 Fetching suggestions for: "${query}"`);
+            const suggestions = await fetchSuggestions(query);
+            currentSuggestions = suggestions;
+            displaySuggestions(suggestions);
+        }, 300);
+
+        // Event listeners
+        input.addEventListener('input', (e) => {
+            console.log(`⌨️ Input event: "${e.target.value}"`);
+            fetchAndDisplaySuggestions(e.target.value);
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (suggestionsContainer.style.display === 'none') return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const nextIndex = Math.min(highlightedIndex + 1, currentSuggestions.length - 1);
+                highlightSuggestion(nextIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prevIndex = Math.max(highlightedIndex - 1, -1);
+                highlightSuggestion(prevIndex);
+            } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+                e.preventDefault();
+                selectSuggestion(highlightedIndex);
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
