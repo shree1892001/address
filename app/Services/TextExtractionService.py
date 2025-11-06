@@ -23,6 +23,101 @@ class TextExtractionService:
             self.ocr_service = OCRService()
             self._initialized = True
 
+    def _is_scanned_pdf(self, pdf_path: str) -> bool:
+        """Detect if PDF is scanned (image-based) by analyzing text content.
+        
+        Args:
+            pdf_path: Path to the PDF file
+            
+        Returns:
+            True if PDF appears to be scanned, False otherwise
+        """
+        try:
+            import fitz
+            doc = fitz.open(pdf_path)
+            total_chars = 0
+            total_pages = len(doc)
+            
+            # Sample first few pages to determine if scanned
+            sample_pages = min(3, total_pages)
+            
+            for page_num in range(sample_pages):
+                page = doc[page_num]
+                # Try multiple extraction methods
+                page_text = page.get_text() or ""
+                page_text += page.get_text("text") or ""
+                page_text += page.get_text("raw") or ""
+                
+                # Also check dict blocks
+                try:
+                    text_dict = page.get_text("dict", flags=11)
+                    for block in text_dict.get("blocks", []):
+                        if block.get("type") == 0:  # Text block
+                            for line in block.get("lines", []):
+                                for span in line.get("spans", []):
+                                    page_text += span.get("text", "")
+                except:
+                    pass
+                
+                total_chars += len(page_text.strip())
+            
+            doc.close()
+            
+            # Threshold: if average chars per page is less than 50, likely scanned
+            avg_chars_per_page = total_chars / sample_pages if sample_pages > 0 else 0
+            is_scanned = avg_chars_per_page < 50
+            
+            self.logger.info(
+                f"Scanned PDF detection: {total_chars} chars from {sample_pages} pages "
+                f"(avg: {avg_chars_per_page:.1f} chars/page) - {'SCANNED' if is_scanned else 'TEXT-BASED'}"
+            )
+            
+            return is_scanned
+            
+        except Exception as e:
+            self.logger.warning(f"Scanned PDF detection failed: {e}")
+            # Default to not scanned if detection fails
+            return False
+    
+    def _perform_ocr_on_page(self, page, page_num: int) -> str:
+        """Perform OCR on a single page using Tesseract via OCRService.
+        
+        Args:
+            page: PyMuPDF page object
+            page_num: Page number (0-indexed)
+            
+        Returns:
+            Extracted text from OCR
+        """
+        try:
+            # Use OCRService's enhanced OCR method
+            spans = self.ocr_service.extract_page_spans(page)
+            
+            if not spans:
+                return ""
+            
+            # Extract text from spans and combine
+            ocr_text_parts = []
+            for span in spans:
+                text = span.get("text", "").strip()
+                if text:
+                    ocr_text_parts.append(text)
+            
+            ocr_text = "\n".join(ocr_text_parts)
+            
+            if ocr_text.strip():
+                self.logger.info(f"OCR extracted {len(ocr_text)} characters from page {page_num + 1}")
+                return ocr_text
+            else:
+                return ""
+                
+        except ImportError:
+            self.logger.debug("pytesseract not available for OCR")
+            return ""
+        except Exception as ocr_err:
+            self.logger.warning(f"OCR failed for page {page_num + 1}: {ocr_err}")
+            return ""
+
     @log_method_entry_exit
     @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
     async def extract_all_text_from_pdf_comprehensive(self, pdf_path: str) -> str:
@@ -32,7 +127,7 @@ class TextExtractionService:
         - Regular PDFs with direct text
         - Canva PDFs with XObject Forms
         - PDFs with structured content trees
-        - Scanned/image-based PDFs (with OCR fallback)
+        - Scanned/image-based PDFs (with automatic OCR detection and processing)
         
         Args:
             pdf_path: Path to the PDF file
@@ -46,6 +141,29 @@ class TextExtractionService:
             import fitz
             doc = fitz.open(pdf_path)
             
+            # Step 1: Detect if PDF is scanned
+            is_scanned = self._is_scanned_pdf(pdf_path)
+            
+            if is_scanned:
+                self.logger.info("Detected scanned PDF - using OCR for all pages")
+                # For scanned PDFs, use OCR directly for all pages
+                for page_num in range(len(doc)):
+                    page = doc[page_num]
+                    ocr_text = self._perform_ocr_on_page(page, page_num)
+                    if ocr_text.strip():
+                        all_text += f"\n--- PAGE {page_num + 1} ---\n{ocr_text}\n"
+                doc.close()
+                
+                # Clean and return OCR results
+                if all_text.strip():
+                    import re
+                    cleaned_text = re.sub(r'\n\s*\n\s*\n+', '\n\n', all_text)
+                    cleaned_text = re.sub(r'[ \t]+', ' ', cleaned_text)
+                    return cleaned_text.strip()
+                else:
+                    return "No text content found in scanned PDF"
+            
+            # Step 2: For text-based PDFs, use comprehensive extraction strategies
             for page_num in range(len(doc)):
                 page = doc[page_num]
                 page_texts = []
@@ -139,25 +257,12 @@ class TextExtractionService:
                 # If we got substantial text, add it
                 if combined.strip() and len(combined.strip()) > 20:
                     all_text += f"\n--- PAGE {page_num + 1} ---\n{combined}\n"
-                # Otherwise try OCR as last resort
+                # Otherwise try OCR as fallback for individual pages
                 elif len(combined.strip()) < 20:
-                    try:
-                        pix = page.get_pixmap()
-                        img_data = pix.tobytes("png")
-                        try:
-                            import pytesseract
-                            from PIL import Image
-                            import io
-                            img = Image.open(io.BytesIO(img_data))
-                            ocr_text = pytesseract.image_to_string(img)
-                            if ocr_text.strip():
-                                all_text += f"\n--- PAGE {page_num + 1} ---\n{ocr_text}\n"
-                        except ImportError:
-                            self.logger.debug("pytesseract not available for OCR")
-                        except Exception as ocr_err:
-                            self.logger.warning(f"OCR failed for page {page_num + 1}: {ocr_err}")
-                    except Exception as pix_err:
-                        self.logger.warning(f"Pixmap creation failed for page {page_num + 1}: {pix_err}")
+                    self.logger.info(f"Minimal text found on page {page_num + 1}, attempting OCR fallback")
+                    ocr_text = self._perform_ocr_on_page(page, page_num)
+                    if ocr_text.strip():
+                        all_text += f"\n--- PAGE {page_num + 1} ---\n{ocr_text}\n"
             
             doc.close()
             
