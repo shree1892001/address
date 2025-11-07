@@ -1,4 +1,5 @@
 import re
+import os
 import statistics
 from typing import List, Dict, Optional
 from app.Logger.ocr_logger import get_standard_logger
@@ -6,6 +7,7 @@ from app.Exceptions.custom_exceptions import (
     handle_general_operations, log_method_entry_exit, ExceptionSeverity
 )
 from app.Services.OCRService import OCRService
+from app.Services.Extractors.DocumentExtractorFactory import document_extractor_factory
 
 
 class TextExtractionService:
@@ -22,6 +24,155 @@ class TextExtractionService:
             self.logger = get_standard_logger("TextExtractionService")
             self.ocr_service = OCRService()
             self._initialized = True
+    
+    def _detect_file_type(self, file_path: str) -> str:
+        """Detect file type based on extension and content.
+        
+        Args:
+            file_path: Path to the file
+            
+        Returns:
+            File type: 'pdf', 'docx', 'jpeg', 'jpg', 'png', or 'unknown'
+        """
+        if not file_path:
+            return 'unknown'
+        
+        file_ext = os.path.splitext(file_path)[1].lower()
+        
+        # Map extensions to file types
+        extension_map = {
+            '.pdf': 'pdf',
+            '.docx': 'docx',
+            '.doc': 'docx',  # Treat .doc as .docx for extraction
+            '.jpeg': 'jpeg',
+            '.jpg': 'jpeg',
+            '.png': 'png',
+            '.gif': 'png',  # Treat GIF as image
+            '.bmp': 'png',  # Treat BMP as image
+            '.tiff': 'png',  # Treat TIFF as image
+            '.tif': 'png'   # Treat TIF as image
+        }
+        
+        file_type = extension_map.get(file_ext, 'unknown')
+        
+        # Additional validation: check file content for images
+        if file_type in ['jpeg', 'png']:
+            try:
+                with open(file_path, 'rb') as f:
+                    # Check image magic numbers
+                    header = f.read(8)
+                    if file_type == 'jpeg' and not header.startswith(b'\xff\xd8'):
+                        self.logger.warning(f"File extension suggests JPEG but magic number doesn't match: {file_path}")
+                    elif file_type == 'png' and not header.startswith(b'\x89PNG\r\n\x1a\n'):
+                        self.logger.warning(f"File extension suggests PNG but magic number doesn't match: {file_path}")
+            except Exception as e:
+                self.logger.debug(f"Could not verify image magic number: {e}")
+        
+        self.logger.info(f"Detected file type: {file_type} for {file_path}")
+        return file_type
+    
+    def _extract_text_from_docx(self, file_path: str) -> str:
+        """Extract all text from a DOCX file.
+        
+        Args:
+            file_path: Path to the DOCX file
+            
+        Returns:
+            Extracted text as a string
+        """
+        try:
+            import docx
+            
+            doc = docx.Document(file_path)
+            all_text_parts = []
+            
+            # Extract text from all paragraphs
+            for paragraph in doc.paragraphs:
+                text = paragraph.text.strip()
+                if text:
+                    all_text_parts.append(text)
+            
+            # Extract text from tables
+            for table in doc.tables:
+                for row in table.rows:
+                    row_texts = []
+                    for cell in row.cells:
+                        cell_text = cell.text.strip()
+                        if cell_text:
+                            row_texts.append(cell_text)
+                    if row_texts:
+                        all_text_parts.append(" | ".join(row_texts))
+            
+            combined_text = "\n".join(all_text_parts)
+            
+            self.logger.info(f"Extracted {len(combined_text)} characters from DOCX: {file_path}")
+            return combined_text.strip()
+            
+        except ImportError:
+            self.logger.error("python-docx library not available. Install it with: pip install python-docx")
+            return "Error: python-docx library not installed"
+        except Exception as e:
+            self.logger.error(f"Error extracting text from DOCX {file_path}: {e}", exc_info=True)
+            return f"Error extracting text from DOCX: {str(e)}"
+    
+    def _extract_text_from_image(self, file_path: str) -> str:
+        """Extract text from an image file (JPEG, PNG) using OCR.
+        
+        Args:
+            file_path: Path to the image file
+            
+        Returns:
+            Extracted text as a string
+        """
+        try:
+            from PIL import Image
+            import pytesseract
+            
+            # Open image
+            img = Image.open(file_path)
+            
+            # Perform OCR
+            ocr_text = pytesseract.image_to_string(img, lang='eng')
+            
+            if ocr_text.strip():
+                self.logger.info(f"OCR extracted {len(ocr_text)} characters from image: {file_path}")
+                return ocr_text.strip()
+            else:
+                self.logger.warning(f"No text found in image: {file_path}")
+                return "No text content found in image"
+                
+        except ImportError:
+            self.logger.error("Required libraries not available. Install with: pip install Pillow pytesseract")
+            return "Error: Required OCR libraries not installed"
+        except Exception as e:
+            self.logger.error(f"Error performing OCR on image {file_path}: {e}", exc_info=True)
+            # Try using OCRService as fallback
+            try:
+                from PIL import Image
+                import fitz
+                
+                # Open image to get dimensions
+                img = Image.open(file_path)
+                
+                # Create a temporary PDF from the image
+                doc = fitz.open()
+                page = doc.new_page(width=img.width, height=img.height)
+                rect = fitz.Rect(0, 0, img.width, img.height)
+                page.insert_image(rect, filename=file_path)
+                
+                # Use OCRService to extract text
+                spans = self.ocr_service.extract_page_spans(page)
+                doc.close()
+                
+                if spans:
+                    ocr_text = "\n".join([span.get("text", "").strip() for span in spans if span.get("text", "").strip()])
+                    if ocr_text.strip():
+                        return ocr_text.strip()
+                
+            except Exception as fallback_error:
+                self.logger.warning(f"OCRService fallback also failed: {fallback_error}")
+            
+            return f"Error performing OCR on image: {str(e)}"
 
     def _is_scanned_pdf(self, pdf_path: str) -> bool:
         """Detect if PDF is scanned (image-based) by analyzing text content.
@@ -121,7 +272,25 @@ class TextExtractionService:
     @log_method_entry_exit
     @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
     async def extract_all_text_from_pdf_comprehensive(self, pdf_path: str) -> str:
-        """Comprehensive text extraction optimized for Canva PDFs and other complex formats.
+        """Comprehensive text extraction for multiple file types using Factory Pattern.
+        
+        This method uses the DocumentExtractorFactory to route to appropriate extractors:
+        - PDFs: Regular PDFs, Canva PDFs, scanned PDFs (with automatic OCR detection)
+          - ALL EXISTING PDF LOGIC IS PRESERVED in PDFExtractor
+        - DOCX: Word documents (text and tables)
+        - Images: JPEG, PNG, JPG (using OCR)
+        
+        Args:
+            pdf_path: Path to the file (PDF, DOCX, JPEG, PNG, or JPG)
+            
+        Returns:
+            Complete extracted text as a string
+        """
+        # Use factory to extract text - preserves all existing PDF logic
+        return await document_extractor_factory.extract_text(pdf_path)
+    
+    async def _extract_text_from_pdf(self, pdf_path: str) -> str:
+        """Extract text from PDF file (existing comprehensive PDF extraction logic).
         
         This method uses multiple extraction strategies to handle:
         - Regular PDFs with direct text

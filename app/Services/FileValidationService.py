@@ -23,7 +23,10 @@ class FileValidationService:
     @log_method_entry_exit
     @handle_general_operations(severity=ExceptionSeverity.MEDIUM)
     def validate_pdf_file(self, file):
-        """Validate that the uploaded file is a PDF"""
+        """Validate that the uploaded file is a supported type (PDF, DOCX, JPEG, PNG)
+        
+        For backward compatibility, this method name remains but now supports multiple file types.
+        """
         # Check filename first
         filename = file.filename or ""
         filename_lower = filename.lower()
@@ -33,10 +36,20 @@ class FileValidationService:
         if hasattr(file, 'headers'):
             content_type = content_type or file.headers.get('content-type', '')
         
-        # Check file content by reading first bytes (PDF files start with %PDF)
-        is_pdf_by_content = False
+        # Supported file extensions
+        supported_extensions = ['.pdf', '.docx', '.doc', '.jpeg', '.jpg', '.png', '.gif', '.bmp', '.tiff', '.tif']
+        
+        # Check if file extension is supported
+        file_ext = None
+        for ext in supported_extensions:
+            if filename_lower.endswith(ext):
+                file_ext = ext
+                break
+        
+        # Check file content by reading first bytes (magic number validation)
+        is_valid_by_content = False
         try:
-            # For FastAPI UploadFile, try to read the first bytes to check PDF magic number
+            # For FastAPI UploadFile, try to read the first bytes to check magic numbers
             if hasattr(file, 'file') and hasattr(file.file, 'read'):
                 # Save current position
                 try:
@@ -44,9 +57,9 @@ class FileValidationService:
                 except:
                     current_pos = None
                 
-                # Read first 4 bytes
+                # Read first 8 bytes for magic number checking
                 file.file.seek(0)
-                first_bytes = file.file.read(4)
+                first_bytes = file.file.read(8)
                 
                 # Reset position
                 if current_pos is not None:
@@ -54,24 +67,40 @@ class FileValidationService:
                 else:
                     file.file.seek(0)
                 
-                if first_bytes and first_bytes.startswith(b'%PDF'):
-                    is_pdf_by_content = True
+                # Check magic numbers
+                if first_bytes:
+                    if first_bytes.startswith(b'%PDF'):
+                        is_valid_by_content = True
+                        if not file_ext:
+                            file_ext = '.pdf'
+                    elif first_bytes.startswith(b'\xff\xd8'):
+                        is_valid_by_content = True
+                        if not file_ext:
+                            file_ext = '.jpg'
+                    elif first_bytes.startswith(b'\x89PNG\r\n\x1a\n'):
+                        is_valid_by_content = True
+                        if not file_ext:
+                            file_ext = '.png'
+                    elif first_bytes.startswith(b'PK\x03\x04'):  # DOCX/ZIP format
+                        is_valid_by_content = True
+                        if not file_ext:
+                            file_ext = '.docx'
         except Exception as e:
             self.logger.debug(f"Could not read file content for validation (this is OK): {e}")
         
         # Validate: must pass at least one check
-        is_pdf = (
-            filename_lower.endswith(".pdf") or
-            'pdf' in content_type.lower() or
-            is_pdf_by_content
+        is_valid = (
+            file_ext is not None or
+            any(ext in content_type.lower() for ext in ['pdf', 'docx', 'doc', 'jpeg', 'jpg', 'png', 'image']) or
+            is_valid_by_content
         )
         
-        if not is_pdf:
+        if not is_valid:
             self.logger.warning(f"Invalid file type uploaded: filename='{filename}', content-type='{content_type}'")
-            file_ext = filename_lower.split('.')[-1] if '.' in filename_lower else "unknown"
+            detected_ext = filename_lower.split('.')[-1] if '.' in filename_lower else "unknown"
             raise InvalidFileTypeException(
-                file_type=file_ext,
-                supported_types=["pdf"]
+                file_type=detected_ext,
+                supported_types=["pdf", "docx", "doc", "jpeg", "jpg", "png"]
             )
         
         return True

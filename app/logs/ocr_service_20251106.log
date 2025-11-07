@@ -10181,3 +10181,209 @@
 [2025-11-06 17:37:19] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.api.Controller.DocumentController.extract_all_content
 [2025-11-06 17:37:19] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.api.Controller.DocumentController.extract_all_content successfully
 [2025-11-06 17:37:19] PerformanceAspect - INFO - async_wrapper:953 - Method app.api.Controller.DocumentController.extract_all_content executed in 0.4727 seconds
+[2025-11-06 17:48:10] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: pdf for test.pdf
+[2025-11-06 17:48:10] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: docx for test.docx
+[2025-11-06 17:48:10] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: jpeg for test.jpg
+[2025-11-06 17:48:11] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: png for test.png
+[2025-11-06 17:48:57] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: pdf for test.pdf
+[2025-11-06 17:48:57] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: docx for test.docx
+[2025-11-06 17:48:57] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: jpeg for test.jpg
+[2025-11-06 17:50:47] MethodAspect - INFO - async_wrapper:910 - Entering method: app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 17:50:47] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.api.Controller.DocumentController.extract_all_content with args: (), kwargs: {'file': UploadFile(filename='Rohan Lute Resume 1.pdf', size=36831, headers=Headers({'content-disposition': 'form-data; name="file"; filename="Rohan Lute Resume 1.pdf"', 'content-type': 'application/pdf'}))}
+[2025-11-06 17:50:47] DocumentController - INFO - extract_all_content:120 - ================================================================================
+[2025-11-06 17:50:47] DocumentController - INFO - extract_all_content:121 - EXTRACT-ALL-CONTENT ENDPOINT CALLED - NEW VERSION
+[2025-11-06 17:50:47] DocumentController - INFO - extract_all_content:122 - File received: Rohan Lute Resume 1.pdf, Size: 36831
+[2025-11-06 17:50:47] DocumentController - INFO - extract_all_content:123 - ================================================================================
+[2025-11-06 17:50:47] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 17:50:47] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x0000022850EA2F90>, UploadFile(filename='Rohan Lute Resume 1.pdf', size=36831, headers=Headers({'content-disposition': 'form-data; name="file"; filename="Rohan Lute Resume 1.pdf"', 'content-type': 'application/pdf'}))), kwargs: {}
+[2025-11-06 17:50:47] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 17:50:47] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-06 17:50:47] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 17:50:47] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x0000022850EA30E0>, UploadFile(filename='Rohan Lute Resume 1.pdf', size=36831, headers=Headers({'content-disposition': 'form-data; name="file"; filename="Rohan Lute Resume 1.pdf"', 'content-type': 'application/pdf'}))), kwargs: {}
+[2025-11-06 17:50:47] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: Rohan Lute Resume 1.pdf to temp_uploads/b005fabe-77fb-4fa0-8994-912b121df7d5.pdf
+[2025-11-06 17:50:47] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 17:50:47] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-06 17:50:47] DocumentController - INFO - extract_all_content:135 - File saved to: temp_uploads/b005fabe-77fb-4fa0-8994-912b121df7d5.pdf
+[2025-11-06 17:50:47] DocumentController - INFO - extract_all_content:136 - Calling text_extraction_service.extract_all_text_from_pdf_comprehensive...
+[2025-11-06 17:50:47] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 17:50:47] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive with args: (<app.Services.TextExtractionService.TextExtractionService object at 0x0000022850EA3620>, 'temp_uploads/b005fabe-77fb-4fa0-8994-912b121df7d5.pdf'), kwargs: {}
+[2025-11-06 17:50:47] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: pdf for temp_uploads/b005fabe-77fb-4fa0-8994-912b121df7d5.pdf
+[2025-11-06 17:50:48] PDFExtractor - WARNING - _is_scanned_pdf:61 - Scanned PDF detection failed: 
+[2025-11-06 17:50:49] PDFExtractor - WARNING - extract_text:156 - Standard extraction failed for page 1: 
+[2025-11-06 17:50:49] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 17:50:49] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive successfully
+[2025-11-06 17:50:49] DocumentController - INFO - extract_all_content:142 - Extraction complete. Text length: 10339 characters
+[2025-11-06 17:50:49] DocumentController - INFO - extract_all_content:154 - Returning response with 10339 characters
+[2025-11-06 17:50:49] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 17:50:49] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.api.Controller.DocumentController.extract_all_content successfully
+[2025-11-06 17:50:49] PerformanceAspect - INFO - async_wrapper:953 - Method app.api.Controller.DocumentController.extract_all_content executed in 1.9832 seconds
+[2025-11-06 17:51:49] MethodAspect - INFO - async_wrapper:910 - Entering method: app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 17:51:49] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.api.Controller.DocumentController.extract_all_content with args: (), kwargs: {'file': UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))}
+[2025-11-06 17:51:49] DocumentController - INFO - extract_all_content:120 - ================================================================================
+[2025-11-06 17:51:49] DocumentController - INFO - extract_all_content:121 - EXTRACT-ALL-CONTENT ENDPOINT CALLED - NEW VERSION
+[2025-11-06 17:51:49] DocumentController - INFO - extract_all_content:122 - File received: india_passport_photoshop_template.jpg, Size: 56822
+[2025-11-06 17:51:49] DocumentController - INFO - extract_all_content:123 - ================================================================================
+[2025-11-06 17:51:49] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 17:51:49] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x0000022850EA2F90>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 17:51:49] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 17:51:49] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-06 17:51:49] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 17:51:49] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x0000022850EA30E0>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 17:51:49] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: india_passport_photoshop_template.jpg to temp_uploads/0a4e2e55-df46-40a4-9291-a20f544f2b7c.jpg
+[2025-11-06 17:51:49] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 17:51:49] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-06 17:51:49] DocumentController - INFO - extract_all_content:135 - File saved to: temp_uploads/0a4e2e55-df46-40a4-9291-a20f544f2b7c.jpg
+[2025-11-06 17:51:49] DocumentController - INFO - extract_all_content:136 - Calling text_extraction_service.extract_all_text_from_pdf_comprehensive...
+[2025-11-06 17:51:49] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 17:51:49] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive with args: (<app.Services.TextExtractionService.TextExtractionService object at 0x0000022850EA3620>, 'temp_uploads/0a4e2e55-df46-40a4-9291-a20f544f2b7c.jpg'), kwargs: {}
+[2025-11-06 17:51:49] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: jpeg for temp_uploads/0a4e2e55-df46-40a4-9291-a20f544f2b7c.jpg
+[2025-11-06 17:51:58] ImageExtractor - INFO - extract_text:27 - OCR extracted 496 characters from image: temp_uploads/0a4e2e55-df46-40a4-9291-a20f544f2b7c.jpg
+[2025-11-06 17:51:58] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 17:51:58] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive successfully
+[2025-11-06 17:51:58] DocumentController - INFO - extract_all_content:142 - Extraction complete. Text length: 494 characters
+[2025-11-06 17:51:58] DocumentController - INFO - extract_all_content:154 - Returning response with 494 characters
+[2025-11-06 17:51:58] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 17:51:58] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.api.Controller.DocumentController.extract_all_content successfully
+[2025-11-06 17:51:58] PerformanceAspect - INFO - async_wrapper:953 - Method app.api.Controller.DocumentController.extract_all_content executed in 8.3679 seconds
+[2025-11-06 18:06:03] MethodAspect - INFO - async_wrapper:910 - Entering method: app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 18:06:03] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.api.Controller.DocumentController.extract_all_content with args: (), kwargs: {'file': UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))}
+[2025-11-06 18:06:03] DocumentController - INFO - extract_all_content:120 - ================================================================================
+[2025-11-06 18:06:03] DocumentController - INFO - extract_all_content:121 - EXTRACT-ALL-CONTENT ENDPOINT CALLED - NEW VERSION
+[2025-11-06 18:06:03] DocumentController - INFO - extract_all_content:122 - File received: india_passport_photoshop_template.jpg, Size: 56822
+[2025-11-06 18:06:03] DocumentController - INFO - extract_all_content:123 - ================================================================================
+[2025-11-06 18:06:03] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:06:03] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x0000024ED2632F90>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:06:03] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:06:03] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-06 18:06:03] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:06:03] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x0000024ED26330E0>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:06:03] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: india_passport_photoshop_template.jpg to temp_uploads/7f50fb2e-3adf-4426-9170-b0a05a1404fb.jpg
+[2025-11-06 18:06:03] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:06:03] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-06 18:06:03] DocumentController - INFO - extract_all_content:135 - File saved to: temp_uploads/7f50fb2e-3adf-4426-9170-b0a05a1404fb.jpg
+[2025-11-06 18:06:03] DocumentController - INFO - extract_all_content:136 - Calling text_extraction_service.extract_all_text_from_pdf_comprehensive...
+[2025-11-06 18:06:03] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 18:06:03] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive with args: (<app.Services.TextExtractionService.TextExtractionService object at 0x0000024ED2633620>, 'temp_uploads/7f50fb2e-3adf-4426-9170-b0a05a1404fb.jpg'), kwargs: {}
+[2025-11-06 18:06:03] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: jpeg for temp_uploads/7f50fb2e-3adf-4426-9170-b0a05a1404fb.jpg
+[2025-11-06 18:06:03] ImageExtractor - INFO - extract_text:131 - Preprocessing image for better OCR accuracy...
+[2025-11-06 18:06:08] ImageExtractor - INFO - extract_text:135 - Performing OCR with multiple configurations...
+[2025-11-06 18:06:45] ImageExtractor - INFO - extract_text:180 - OCR extracted 928 characters from image: temp_uploads/7f50fb2e-3adf-4426-9170-b0a05a1404fb.jpg
+[2025-11-06 18:06:45] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 18:06:45] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive successfully
+[2025-11-06 18:06:45] DocumentController - INFO - extract_all_content:142 - Extraction complete. Text length: 927 characters
+[2025-11-06 18:06:45] DocumentController - INFO - extract_all_content:154 - Returning response with 927 characters
+[2025-11-06 18:06:45] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 18:06:45] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.api.Controller.DocumentController.extract_all_content successfully
+[2025-11-06 18:06:45] PerformanceAspect - INFO - async_wrapper:953 - Method app.api.Controller.DocumentController.extract_all_content executed in 42.1783 seconds
+[2025-11-06 18:13:57] MethodAspect - INFO - async_wrapper:910 - Entering method: app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 18:13:57] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.api.Controller.DocumentController.extract_all_content with args: (), kwargs: {'file': UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))}
+[2025-11-06 18:13:57] DocumentController - INFO - extract_all_content:120 - ================================================================================
+[2025-11-06 18:13:57] DocumentController - INFO - extract_all_content:121 - EXTRACT-ALL-CONTENT ENDPOINT CALLED - NEW VERSION
+[2025-11-06 18:13:57] DocumentController - INFO - extract_all_content:122 - File received: india_passport_photoshop_template.jpg, Size: 56822
+[2025-11-06 18:13:57] DocumentController - INFO - extract_all_content:123 - ================================================================================
+[2025-11-06 18:13:57] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:13:57] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x0000024A95222F90>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:13:57] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:13:57] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-06 18:13:57] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:13:57] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x0000024A952230E0>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:13:57] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: india_passport_photoshop_template.jpg to temp_uploads/3fcd3a6d-4e8d-4219-8cd0-67c9c8ba3172.jpg
+[2025-11-06 18:13:57] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:13:57] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-06 18:13:57] DocumentController - INFO - extract_all_content:135 - File saved to: temp_uploads/3fcd3a6d-4e8d-4219-8cd0-67c9c8ba3172.jpg
+[2025-11-06 18:13:57] DocumentController - INFO - extract_all_content:136 - Calling text_extraction_service.extract_all_text_from_pdf_comprehensive...
+[2025-11-06 18:13:57] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 18:13:57] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive with args: (<app.Services.TextExtractionService.TextExtractionService object at 0x0000024A95223620>, 'temp_uploads/3fcd3a6d-4e8d-4219-8cd0-67c9c8ba3172.jpg'), kwargs: {}
+[2025-11-06 18:13:57] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: jpeg for temp_uploads/3fcd3a6d-4e8d-4219-8cd0-67c9c8ba3172.jpg
+[2025-11-06 18:13:57] ImageExtractor - INFO - extract_text:280 - Trying preprocessing method: adaptive...
+[2025-11-06 18:16:44] MethodAspect - INFO - async_wrapper:910 - Entering method: app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 18:16:44] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.api.Controller.DocumentController.extract_all_content with args: (), kwargs: {'file': UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))}
+[2025-11-06 18:16:44] DocumentController - INFO - extract_all_content:120 - ================================================================================
+[2025-11-06 18:16:44] DocumentController - INFO - extract_all_content:121 - EXTRACT-ALL-CONTENT ENDPOINT CALLED - NEW VERSION
+[2025-11-06 18:16:44] DocumentController - INFO - extract_all_content:122 - File received: india_passport_photoshop_template.jpg, Size: 56822
+[2025-11-06 18:16:44] DocumentController - INFO - extract_all_content:123 - ================================================================================
+[2025-11-06 18:16:44] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:16:44] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x00000212F00F2F90>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:16:44] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:16:44] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-06 18:16:44] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:16:44] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x00000212F00F30E0>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:16:44] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: india_passport_photoshop_template.jpg to temp_uploads/0b77f0d6-aae4-4d79-80be-609dd164a1e1.jpg
+[2025-11-06 18:16:44] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:16:44] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-06 18:16:44] DocumentController - INFO - extract_all_content:135 - File saved to: temp_uploads/0b77f0d6-aae4-4d79-80be-609dd164a1e1.jpg
+[2025-11-06 18:16:44] DocumentController - INFO - extract_all_content:136 - Calling text_extraction_service.extract_all_text_from_pdf_comprehensive...
+[2025-11-06 18:16:44] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 18:16:44] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive with args: (<app.Services.TextExtractionService.TextExtractionService object at 0x00000212F00F3620>, 'temp_uploads/0b77f0d6-aae4-4d79-80be-609dd164a1e1.jpg'), kwargs: {}
+[2025-11-06 18:16:45] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: jpeg for temp_uploads/0b77f0d6-aae4-4d79-80be-609dd164a1e1.jpg
+[2025-11-06 18:16:45] ImageExtractor - INFO - extract_text:280 - Trying preprocessing method: adaptive...
+[2025-11-06 18:17:40] ImageExtractor - INFO - extract_text:288 - Sorting text by spatial position for proper reading order...
+[2025-11-06 18:17:40] ImageExtractor - INFO - extract_text:298 - Better result found with adaptive: 58 chars
+[2025-11-06 18:17:40] ImageExtractor - INFO - extract_text:280 - Trying preprocessing method: otsu...
+[2025-11-06 18:18:37] ImageExtractor - INFO - extract_text:288 - Sorting text by spatial position for proper reading order...
+[2025-11-06 18:18:37] ImageExtractor - INFO - extract_text:298 - Better result found with otsu: 84 chars
+[2025-11-06 18:18:37] ImageExtractor - INFO - extract_text:280 - Trying preprocessing method: morphology...
+[2025-11-06 18:19:09] ImageExtractor - INFO - extract_text:288 - Sorting text by spatial position for proper reading order...
+[2025-11-06 18:19:09] ImageExtractor - INFO - extract_text:280 - Trying preprocessing method: simple...
+[2025-11-06 18:19:41] ImageExtractor - INFO - extract_text:288 - Sorting text by spatial position for proper reading order...
+[2025-11-06 18:19:41] ImageExtractor - INFO - extract_text:329 - Trying OCRService enhanced OCR as additional fallback...
+[2025-11-06 18:19:41] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-06 18:19:41] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x00000212F00801A0>, page 0 of None), kwargs: {}
+[2025-11-06 18:19:55] OCRService - INFO - extract_page_spans:82 - OCR found 122 text elements
+[2025-11-06 18:19:55] OCRService - INFO - extract_page_spans:94 - Extracted 101 spans from OCR
+[2025-11-06 18:19:55] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-06 18:19:55] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-06 18:19:55] ImageExtractor - INFO - extract_text:351 - OCRService provided better results
+[2025-11-06 18:19:55] ImageExtractor - INFO - extract_text:358 - Post-processing OCR text to fix common errors...
+[2025-11-06 18:19:55] ImageExtractor - INFO - extract_text:361 - OCR extracted 440 characters from image: temp_uploads/0b77f0d6-aae4-4d79-80be-609dd164a1e1.jpg
+[2025-11-06 18:19:55] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 18:19:55] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive successfully
+[2025-11-06 18:19:55] DocumentController - INFO - extract_all_content:142 - Extraction complete. Text length: 440 characters
+[2025-11-06 18:19:55] DocumentController - INFO - extract_all_content:154 - Returning response with 440 characters
+[2025-11-06 18:19:55] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 18:19:55] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.api.Controller.DocumentController.extract_all_content successfully
+[2025-11-06 18:19:55] PerformanceAspect - INFO - async_wrapper:953 - Method app.api.Controller.DocumentController.extract_all_content executed in 190.6396 seconds
+[2025-11-06 18:25:48] MethodAspect - INFO - async_wrapper:910 - Entering method: app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 18:25:48] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.api.Controller.DocumentController.extract_all_content with args: (), kwargs: {'file': UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))}
+[2025-11-06 18:25:48] DocumentController - INFO - extract_all_content:120 - ================================================================================
+[2025-11-06 18:25:48] DocumentController - INFO - extract_all_content:121 - EXTRACT-ALL-CONTENT ENDPOINT CALLED - NEW VERSION
+[2025-11-06 18:25:48] DocumentController - INFO - extract_all_content:122 - File received: india_passport_photoshop_template.jpg, Size: 56822
+[2025-11-06 18:25:48] DocumentController - INFO - extract_all_content:123 - ================================================================================
+[2025-11-06 18:25:48] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:25:48] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x000001E6797430E0>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:25:48] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-06 18:25:48] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-06 18:25:48] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:25:48] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x000001E679743230>, UploadFile(filename='india_passport_photoshop_template.jpg', size=56822, headers=Headers({'content-disposition': 'form-data; name="file"; filename="india_passport_photoshop_template.jpg"', 'content-type': 'image/jpeg'}))), kwargs: {}
+[2025-11-06 18:25:48] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: india_passport_photoshop_template.jpg to temp_uploads/ea402557-dec7-46ad-a4b6-003d4897d148.jpg
+[2025-11-06 18:25:48] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-06 18:25:48] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-06 18:25:48] DocumentController - INFO - extract_all_content:135 - File saved to: temp_uploads/ea402557-dec7-46ad-a4b6-003d4897d148.jpg
+[2025-11-06 18:25:48] DocumentController - INFO - extract_all_content:136 - Calling text_extraction_service.extract_all_text_from_pdf_comprehensive...
+[2025-11-06 18:25:48] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 18:25:48] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive with args: (<app.Services.TextExtractionService.TextExtractionService object at 0x000001E679743770>, 'temp_uploads/ea402557-dec7-46ad-a4b6-003d4897d148.jpg'), kwargs: {}
+[2025-11-06 18:25:48] DocumentExtractorFactory - INFO - detect_file_type:71 - Detected file type: jpeg for temp_uploads/ea402557-dec7-46ad-a4b6-003d4897d148.jpg
+[2025-11-06 18:25:49] ImageExtractor - INFO - extract_text:335 - Preprocessing image for better OCR accuracy...
+[2025-11-06 18:25:57] ImageExtractor - INFO - extract_text:339 - Performing OCR with optimized configurations...
+[2025-11-06 18:26:10] ImageExtractor - INFO - _perform_ocr_with_configs_fast:143 - Good result found with --psm 6, early exit
+[2025-11-06 18:26:10] ImageExtractor - INFO - extract_text:344 - Sorting text by spatial position for proper reading order...
+[2025-11-06 18:26:10] ImageExtractor - INFO - extract_text:351 - Result quality low, trying alternative preprocessing...
+[2025-11-06 18:26:22] ImageExtractor - INFO - _perform_ocr_with_configs_fast:143 - Good result found with --psm 6, early exit
+[2025-11-06 18:26:22] ImageExtractor - INFO - extract_text:365 - Alternative preprocessing provided better results
+[2025-11-06 18:26:22] ImageExtractor - INFO - extract_text:371 - Trying OCRService enhanced OCR as additional fallback...
+[2025-11-06 18:26:22] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-06 18:26:22] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x000001E6796D02F0>, page 0 of None), kwargs: {}
+[2025-11-06 18:26:50] OCRService - INFO - extract_page_spans:82 - OCR found 122 text elements
+[2025-11-06 18:26:50] OCRService - INFO - extract_page_spans:94 - Extracted 101 spans from OCR
+[2025-11-06 18:26:50] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-06 18:26:50] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-06 18:26:50] ImageExtractor - INFO - extract_text:393 - OCRService provided better results
+[2025-11-06 18:26:50] ImageExtractor - INFO - extract_text:400 - Post-processing OCR text to fix common errors...
+[2025-11-06 18:26:50] ImageExtractor - INFO - extract_text:403 - OCR extracted 426 characters from image: temp_uploads/ea402557-dec7-46ad-a4b6-003d4897d148.jpg
+[2025-11-06 18:26:50] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive
+[2025-11-06 18:26:50] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.TextExtractionService.extract_all_text_from_pdf_comprehensive successfully
+[2025-11-06 18:26:50] DocumentController - INFO - extract_all_content:142 - Extraction complete. Text length: 426 characters
+[2025-11-06 18:26:50] DocumentController - INFO - extract_all_content:154 - Returning response with 426 characters
+[2025-11-06 18:26:50] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.api.Controller.DocumentController.extract_all_content
+[2025-11-06 18:26:50] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.api.Controller.DocumentController.extract_all_content successfully
+[2025-11-06 18:26:50] PerformanceAspect - INFO - async_wrapper:953 - Method app.api.Controller.DocumentController.extract_all_content executed in 62.6223 seconds

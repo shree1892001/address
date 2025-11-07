@@ -24,25 +24,42 @@ class FileUploadService:
     @log_method_entry_exit
     @handle_file_operations(severity=ExceptionSeverity.MEDIUM)
     async def save_uploaded_file(self, file, temp_directory="temp_uploads"):
-        """Save uploaded file to temporary directory and return file paths"""
+        """Save uploaded file to temporary directory and return file paths
+        
+        Supports multiple file types: PDF, DOCX, JPEG, PNG, etc.
+        Preserves original file extension.
+        """
         try:
             # Generate unique filename
             file_id = str(uuid.uuid4())
-            temp_pdf_path = f"{temp_directory}/{file_id}.pdf"
+            
+            # Get original file extension
+            original_filename = file.filename or "file"
+            file_ext = os.path.splitext(original_filename)[1].lower()
+            
+            # If no extension, default to .pdf for backward compatibility
+            if not file_ext:
+                file_ext = ".pdf"
             
             # Ensure temp directory exists
             os.makedirs(temp_directory, exist_ok=True)
             
+            # Save with original extension
+            temp_file_path = f"{temp_directory}/{file_id}{file_ext}"
+            
             # Save uploaded file
-            with open(temp_pdf_path, "wb") as buffer:
+            with open(temp_file_path, "wb") as buffer:
                 content = await file.read()
                 buffer.write(content)
             
-            self.logger.info(f"Successfully saved uploaded file: {file.filename} to {temp_pdf_path}")
+            self.logger.info(f"Successfully saved uploaded file: {file.filename} to {temp_file_path}")
             
+            # For backward compatibility, also include pdf_path (may point to non-PDF files)
             return {
                 "file_id": file_id,
-                "pdf_path": temp_pdf_path,
+                "file_path": temp_file_path,  # New: actual file path with correct extension
+                "pdf_path": temp_file_path,  # Keep for backward compatibility
+                "file_extension": file_ext,
                 "json_path": f"{temp_directory}/{file_id}.json",
                 "csv_path": f"{temp_directory}/{file_id}.csv",
                 "excel_path": f"{temp_directory}/{file_id}.xlsx"
@@ -50,7 +67,8 @@ class FileUploadService:
             
         except Exception as e:
             self.logger.error(f"Failed to save uploaded file: {e}")
-            raise FileSaveException(temp_pdf_path, details={"error": str(e), "filename": file.filename})
+            temp_file_path = f"{temp_directory}/{file_id}{file_ext}" if 'file_ext' in locals() else f"{temp_directory}/{file_id}.pdf"
+            raise FileSaveException(temp_file_path, details={"error": str(e), "filename": file.filename})
 
     @log_method_entry_exit
     @handle_file_operations(severity=ExceptionSeverity.LOW)
