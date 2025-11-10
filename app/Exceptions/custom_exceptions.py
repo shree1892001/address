@@ -91,6 +91,20 @@ class TableExtractionException(BaseOCRException):
         super().__init__(message, status_code=422, details=details)
 
 
+class FileProcessingError(BaseOCRException):
+    """Exception raised when file processing fails"""
+    
+    def __init__(self, message: str = "File processing failed", details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, status_code=422, details=details)
+
+
+class ValidationError(BaseOCRException):
+    """Exception raised when validation fails"""
+    
+    def __init__(self, message: str = "Validation failed", details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, status_code=400, details=details)
+
+
 class NoTableFoundException(TableExtractionException):
     """Exception raised when no table is found in the document"""
     
@@ -99,6 +113,7 @@ class NoTableFoundException(TableExtractionException):
         details = details or {}
         details["file_path"] = file_path
         super().__init__(message, details=details)
+        self.text_content = details.get('text_content')  # Store text content if available
 
 
 class ColumnDetectionException(TableExtractionException):

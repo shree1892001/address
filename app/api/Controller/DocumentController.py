@@ -1,7 +1,7 @@
-from fastapi import APIRouter, UploadFile, File, Request
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, UploadFile, File, Request, HTTPException, status
+from fastapi.responses import HTMLResponse, JSONResponse
 
-from app.Services.TableExtractionService import TableExtractionService
+from app.Services.TableExtractionServiceV2 import TableExtractionServiceV2
 from app.Services.FileDownloadService import FileDownloadService
 from app.Services.HealthCheckService import HealthCheckService
 from app.Services.ResponseService import ResponseService
@@ -16,7 +16,7 @@ router = APIRouter()
 logger = get_standard_logger("DocumentController")
 
 # Initialize services
-table_extraction_service = TableExtractionService()
+table_extraction_service = TableExtractionServiceV2()
 file_download_service = FileDownloadService()
 health_check_service = HealthCheckService()
 response_service = ResponseService()
@@ -38,12 +38,42 @@ async def upload_interface(request: Request):
 @log_method_entry_exit
 @handle_general_operations(severity=ExceptionSeverity.HIGH)
 async def extract_table_from_document(file: UploadFile = File(...)):
-	"""Extract table from uploaded PDF document"""
-	try:
-		response = await table_extraction_service.extract_table_from_pdf(file)
-		return response_service.handle_table_extraction_response(response)
-	except Exception as e:
-		return response_service.handle_table_extraction_error(e, "table extraction")
+    """Extract table from uploaded document (PDF, PNG, JPEG, DOCX)"""
+    try:
+        if not file.filename:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No file provided"
+            )
+            
+        # Get file extension and validate
+        file_extension = file.filename.split('.')[-1].lower()
+        if file_extension not in ['pdf', 'png', 'jpg', 'jpeg', 'docx']:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported file type: {file_extension}"
+            )
+            
+        # Process the file
+        result = await table_extraction_service.extract_table(file)
+        
+        # Handle the response
+        if result.get('status') == 'error':
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=result.get('message', 'Failed to process document')
+            )
+            
+        return JSONResponse(content=result)
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error processing file: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while processing the file: {str(e)}"
+        )
 
 
 @router.get("/download/{file_id}")

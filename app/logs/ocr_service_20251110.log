@@ -1,0 +1,875 @@
+[2025-11-10 10:34:13] MethodAspect - INFO - async_wrapper:910 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 10:34:13] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 10:34:13] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TableExtractionService.extract_table_from_pdf
+[2025-11-10 10:34:13] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TableExtractionService.extract_table_from_pdf with args: (<app.Services.TableExtractionService.TableExtractionService object at 0x00000222062270E0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 10:34:13] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-10 10:34:13] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x0000022206227230>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 10:34:13] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-10 10:34:13] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-10 10:34:13] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 10:34:13] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x0000022206227380>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 10:34:13] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png
+[2025-11-10 10:34:13] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 10:34:13] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 10:34:13] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 10:34:13] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x00000222061B4440>, 'temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png'), kwargs: {}
+[2025-11-10 10:34:14] OCRService - INFO - open_pdf:57 - Opened PDF: temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png
+[2025-11-10 10:34:14] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 10:34:14] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 10:34:14] TableExtractionService - INFO - _extract_table_data:206 - Processing page 1
+[2025-11-10 10:34:14] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 10:34:14] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x00000222061B4440>, page 0 of temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png), kwargs: {}
+[2025-11-10 10:35:55] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 10:35:55] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 10:35:55] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 10:35:55] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 10:35:55] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.cluster_rows
+[2025-11-10 10:35:55] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.cluster_rows with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, [{'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]), kwargs: {}
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.cluster_rows
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.cluster_rows successfully
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.DocumentClassificationService.classify_document_content
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.DocumentClassificationService.classify_document_content with args: (<app.Services.DocumentClassificationService.DocumentClassificationService object at 0x0000022206227770>, [{'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]), kwargs: {}
+[2025-11-10 10:35:56] DocumentClassificationService - INFO - _detect_table_regions:228 - Detected 0 table regions
+[2025-11-10 10:35:56] DocumentClassificationService - INFO - _detect_text_regions:269 - Detected 0 text regions
+[2025-11-10 10:35:56] DocumentClassificationService - INFO - _prioritize_content:568 - Content prioritized: 0 tables, 0 text regions
+[2025-11-10 10:35:56] DocumentClassificationService - INFO - classify_document_content:65 - Document classified as: empty (confidence: 0.30)
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.DocumentClassificationService.classify_document_content
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.DocumentClassificationService.classify_document_content successfully
+[2025-11-10 10:35:56] TableExtractionService - INFO - _extract_table_data:253 - Detecting columns from 1 rows across 1 pages
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.centers_to_bounds
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.centers_to_bounds with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, [1954.0, 194.0, 2801.0], 194.0, 4518.0), kwargs: {}
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.centers_to_bounds
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.centers_to_bounds successfully
+[2025-11-10 10:35:56] TableExtractionService - INFO - _extract_table_data:269 - Building table with 3 columns
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.build_table_with_bounds
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.build_table_with_bounds with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, [[{'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]], [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 10:35:56] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 10:35:56] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, {'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.build_table_with_bounds
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.build_table_with_bounds successfully
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.is_likely_header
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.is_likely_header with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, ['', '[none [Ae', '[ema'], 3), kwargs: {}
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.is_likely_header
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.is_likely_header successfully
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.TableProcessingService.is_english_row
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.TableProcessingService.is_english_row with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000222062274D0>, ['', '[none [Ae', '[ema']), kwargs: {}
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.TableProcessingService.is_english_row
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.TableProcessingService.is_english_row successfully
+[2025-11-10 10:35:59] MethodAspect - INFO - async_wrapper:910 - Entering method: app.Services.TextOnlyExtractionService.extract_text_from_pdf
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - async_wrapper:412 - Entering app.Services.TextOnlyExtractionService.extract_text_from_pdf with args: (<app.Services.TextOnlyExtractionService.TextOnlyExtractionService object at 0x0000022206227A10>, 'temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png'), kwargs: {}
+[2025-11-10 10:35:59] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 10:35:59] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x00000222061B4440>, 'temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png'), kwargs: {}
+[2025-11-10 10:36:00] OCRService - INFO - open_pdf:57 - Opened PDF: temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png
+[2025-11-10 10:36:00] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 10:36:00] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 10:36:00] TextOnlyExtractionService - INFO - extract_text_from_pdf:31 - Processing 1 pages for complete text extraction
+[2025-11-10 10:36:00] TextOnlyExtractionService - INFO - extract_text_from_pdf:35 - Extracting text from page 1/1
+[2025-11-10 10:36:01] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 10:36:01] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x00000222061B4440>, page 0 of temp_uploads/18463c88-338d-4d8d-9f38-2688d81025bd.png), kwargs: {}
+[2025-11-10 10:36:49] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 10:36:49] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 10:36:49] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 10:36:49] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 10:36:49] TextOnlyExtractionService - INFO - extract_text_from_pdf:84 - Page 1: Extracted 14 characters
+[2025-11-10 10:36:49] TextOnlyExtractionService - INFO - extract_text_from_pdf:90 - Total extraction: 14 characters from 1 pages
+[2025-11-10 10:36:49] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.TextOnlyExtractionService.extract_text_from_pdf
+[2025-11-10 10:36:49] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.TextOnlyExtractionService.extract_text_from_pdf successfully
+[2025-11-10 10:36:49] TableExtractionService - INFO - _extract_table_data:523 - Table extraction failed, extracted text content instead
+[2025-11-10 10:36:49] TableExtractionService - INFO - extract_table_from_pdf:102 - No tables found. Returned paragraph/JSON content for test.png
+[2025-11-10 10:36:49] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.Services.TableExtractionService.extract_table_from_pdf
+[2025-11-10 10:36:49] PerformanceAspect - INFO - async_wrapper:953 - Method app.Services.TableExtractionService.extract_table_from_pdf executed in 155.3727 seconds
+[2025-11-10 10:36:49] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.Services.TableExtractionService.extract_table_from_pdf successfully
+[2025-11-10 10:36:49] MethodAspect - INFO - sync_wrapper:924 - Entering method: app.Services.ResponseService.handle_table_extraction_response
+[2025-11-10 10:36:49] AOPExceptionHandler - INFO - sync_wrapper:476 - Entering app.Services.ResponseService.handle_table_extraction_response with args: (<app.Services.ResponseService.ResponseService object at 0x0000022206227E00>, {'success': True, 'message': 'No tables detected in test.png. Returning extracted text.', 'rows_extracted': 0, 'columns': 0, 'excel_file': None, 'text_content': {'full_text': '[Ae [none [ema'}, 'timestamp': '2025-11-10T10:36:49.103589'}), kwargs: {}
+[2025-11-10 10:36:49] AOPExceptionHandler - INFO - sync_wrapper:496 - Successfully executed app.Services.ResponseService.handle_table_extraction_response
+[2025-11-10 10:36:49] MethodAspect - INFO - sync_wrapper:927 - Exiting method: app.Services.ResponseService.handle_table_extraction_response successfully
+[2025-11-10 10:36:49] AOPExceptionHandler - INFO - async_wrapper:432 - Successfully executed app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 10:36:49] MethodAspect - INFO - async_wrapper:913 - Exiting method: app.api.Controller.DocumentController.extract_table_from_document successfully
+[2025-11-10 10:36:49] PerformanceAspect - INFO - async_wrapper:953 - Method app.api.Controller.DocumentController.extract_table_from_document executed in 155.4629 seconds
+[2025-11-10 11:09:09] MethodAspect - INFO - async_wrapper:925 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 11:09:09] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TableExtractionService.extract_table_from_pdf
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TableExtractionService.extract_table_from_pdf with args: (<app.Services.TableExtractionService.TableExtractionService object at 0x00000208244B30E0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:09:09] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x00000208244B3230>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-10 11:09:09] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-10 11:09:09] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x00000208244B3380>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:09:09] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:09:09] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 11:09:09] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x0000020824440440>, 'temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png'), kwargs: {}
+[2025-11-10 11:09:09] OCRService - INFO - open_pdf:57 - Opened PDF: temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:09:09] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:09:09] TableExtractionService - INFO - _extract_table_data:206 - Processing page 1
+[2025-11-10 11:09:09] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:09:09] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x0000020824440440>, page 0 of temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png), kwargs: {}
+[2025-11-10 11:10:00] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 11:10:00] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.cluster_rows with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, [{'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]), kwargs: {}
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.cluster_rows successfully
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.DocumentClassificationService.classify_document_content
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.DocumentClassificationService.classify_document_content with args: (<app.Services.DocumentClassificationService.DocumentClassificationService object at 0x00000208244B3770>, [{'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]), kwargs: {}
+[2025-11-10 11:10:00] DocumentClassificationService - INFO - _detect_table_regions:228 - Detected 0 table regions
+[2025-11-10 11:10:00] DocumentClassificationService - INFO - _detect_text_regions:269 - Detected 0 text regions
+[2025-11-10 11:10:00] DocumentClassificationService - INFO - _prioritize_content:568 - Content prioritized: 0 tables, 0 text regions
+[2025-11-10 11:10:00] DocumentClassificationService - INFO - classify_document_content:65 - Document classified as: empty (confidence: 0.30)
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.DocumentClassificationService.classify_document_content
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.DocumentClassificationService.classify_document_content successfully
+[2025-11-10 11:10:00] TableExtractionService - INFO - _extract_table_data:253 - Detecting columns from 1 rows across 1 pages
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.centers_to_bounds
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.centers_to_bounds with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, [1954.0, 194.0, 2801.0], 194.0, 4518.0), kwargs: {}
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.centers_to_bounds
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.centers_to_bounds successfully
+[2025-11-10 11:10:00] TableExtractionService - INFO - _extract_table_data:269 - Building table with 3 columns
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.build_table_with_bounds
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.build_table_with_bounds with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, [[{'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]], [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 11:10:00] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:10:00] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, {'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.build_table_with_bounds
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.build_table_with_bounds successfully
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.is_likely_header
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.is_likely_header with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, ['', '[none [Ae', '[ema'], 3), kwargs: {}
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.is_likely_header
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.is_likely_header successfully
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.is_english_row
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.is_english_row with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000208244B34D0>, ['', '[none [Ae', '[ema']), kwargs: {}
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.is_english_row
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.is_english_row successfully
+[2025-11-10 11:10:04] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TextOnlyExtractionService.extract_text_from_pdf
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TextOnlyExtractionService.extract_text_from_pdf with args: (<app.Services.TextOnlyExtractionService.TextOnlyExtractionService object at 0x00000208244B3A10>, 'temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png'), kwargs: {}
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x0000020824440440>, 'temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png'), kwargs: {}
+[2025-11-10 11:10:04] OCRService - INFO - open_pdf:57 - Opened PDF: temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:10:04] TextOnlyExtractionService - INFO - extract_text_from_pdf:31 - Processing 1 pages for complete text extraction
+[2025-11-10 11:10:04] TextOnlyExtractionService - INFO - extract_text_from_pdf:35 - Extracting text from page 1/1
+[2025-11-10 11:10:04] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:10:04] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x0000020824440440>, page 0 of temp_uploads/32e6fcc6-08b1-4c8a-b27b-0c5538f9280e.png), kwargs: {}
+[2025-11-10 11:13:47] MethodAspect - INFO - async_wrapper:925 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 11:13:47] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TableExtractionService.extract_table_from_pdf
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TableExtractionService.extract_table_from_pdf with args: (<app.Services.TableExtractionService.TableExtractionService object at 0x0000022DD10430E0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:13:47] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.FileValidationService.validate_pdf_file
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.FileValidationService.validate_pdf_file with args: (<app.Services.FileValidationService.FileValidationService object at 0x0000022DD1043230>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.FileValidationService.validate_pdf_file
+[2025-11-10 11:13:47] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.FileValidationService.validate_pdf_file successfully
+[2025-11-10 11:13:47] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x0000022DD1043380>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:13:47] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:13:47] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 11:13:47] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x0000022DD0FD0440>, 'temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png'), kwargs: {}
+[2025-11-10 11:13:47] OCRService - INFO - open_pdf:57 - Opened PDF: temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:13:47] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:13:47] TableExtractionService - INFO - _extract_table_data:206 - Processing page 1
+[2025-11-10 11:13:47] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:13:47] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x0000022DD0FD0440>, page 0 of temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png), kwargs: {}
+[2025-11-10 11:14:26] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 11:14:26] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.cluster_rows with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, [{'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]), kwargs: {}
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.cluster_rows successfully
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.DocumentClassificationService.classify_document_content
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.DocumentClassificationService.classify_document_content with args: (<app.Services.DocumentClassificationService.DocumentClassificationService object at 0x0000022DD1043770>, [{'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]), kwargs: {}
+[2025-11-10 11:14:26] DocumentClassificationService - INFO - _detect_table_regions:228 - Detected 0 table regions
+[2025-11-10 11:14:26] DocumentClassificationService - INFO - _detect_text_regions:269 - Detected 0 text regions
+[2025-11-10 11:14:26] DocumentClassificationService - INFO - _prioritize_content:568 - Content prioritized: 0 tables, 0 text regions
+[2025-11-10 11:14:26] DocumentClassificationService - INFO - classify_document_content:65 - Document classified as: empty (confidence: 0.30)
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.DocumentClassificationService.classify_document_content
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.DocumentClassificationService.classify_document_content successfully
+[2025-11-10 11:14:26] TableExtractionService - INFO - _extract_table_data:253 - Detecting columns from 1 rows across 1 pages
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.centers_to_bounds
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.centers_to_bounds with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, [1954.0, 194.0, 2801.0], 194.0, 4518.0), kwargs: {}
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.centers_to_bounds
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.centers_to_bounds successfully
+[2025-11-10 11:14:26] TableExtractionService - INFO - _extract_table_data:269 - Building table with 3 columns
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.build_table_with_bounds
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.build_table_with_bounds with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, [[{'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, {'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}]], [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, {'x0': 1954.0, 'x1': 2661.0, 'y0': 0.0, 'y1': 847.0, 'y_center': 423.5, 'text': '[Ae'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 11:14:26] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:14:26] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, {'x0': 194.0, 'x1': 4518.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[none'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.assign_span_to_col with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, {'x0': 2801.0, 'x1': 4496.0, 'y0': 203.0, 'y1': 675.0, 'y_center': 439.0, 'text': '[ema'}, [(192.0, 1074.0), (1074.0, 2377.5), (2377.5, 4520.0)], [1954.0, 194.0, 2801.0]), kwargs: {}
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.assign_span_to_col
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.assign_span_to_col successfully
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.build_table_with_bounds
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.build_table_with_bounds successfully
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.is_likely_header
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.is_likely_header with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, ['', '[none [Ae', '[ema'], 3), kwargs: {}
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.is_likely_header
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.is_likely_header successfully
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.is_english_row
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.is_english_row with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000022DD10434D0>, ['', '[none [Ae', '[ema']), kwargs: {}
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.is_english_row
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.is_english_row successfully
+[2025-11-10 11:14:31] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TextOnlyExtractionService.extract_text_from_pdf
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TextOnlyExtractionService.extract_text_from_pdf with args: (<app.Services.TextOnlyExtractionService.TextOnlyExtractionService object at 0x0000022DD1043A10>, 'temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png'), kwargs: {}
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x0000022DD0FD0440>, 'temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png'), kwargs: {}
+[2025-11-10 11:14:31] OCRService - INFO - open_pdf:57 - Opened PDF: temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:14:31] TextOnlyExtractionService - INFO - extract_text_from_pdf:31 - Processing 1 pages for complete text extraction
+[2025-11-10 11:14:31] TextOnlyExtractionService - INFO - extract_text_from_pdf:35 - Extracting text from page 1/1
+[2025-11-10 11:14:31] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:14:31] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x0000022DD0FD0440>, page 0 of temp_uploads/ccc5df18-54c1-4635-a23e-421035166aac.png), kwargs: {}
+[2025-11-10 11:15:08] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 11:15:08] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 11:15:08] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 11:15:08] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 11:15:08] TextOnlyExtractionService - INFO - extract_text_from_pdf:84 - Page 1: Extracted 14 characters
+[2025-11-10 11:15:08] TextOnlyExtractionService - INFO - extract_text_from_pdf:90 - Total extraction: 14 characters from 1 pages
+[2025-11-10 11:15:08] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.TextOnlyExtractionService.extract_text_from_pdf
+[2025-11-10 11:15:08] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.TextOnlyExtractionService.extract_text_from_pdf successfully
+[2025-11-10 11:15:08] TableExtractionService - INFO - _extract_table_data:523 - Table extraction failed, extracted text content instead
+[2025-11-10 11:15:08] TableExtractionService - INFO - extract_table_from_pdf:102 - No tables found. Returned paragraph/JSON content for test.png
+[2025-11-10 11:15:08] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.TableExtractionService.extract_table_from_pdf
+[2025-11-10 11:15:08] PerformanceAspect - INFO - async_wrapper:968 - Method app.Services.TableExtractionService.extract_table_from_pdf executed in 81.3969 seconds
+[2025-11-10 11:15:08] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.TableExtractionService.extract_table_from_pdf successfully
+[2025-11-10 11:15:08] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.ResponseService.handle_table_extraction_response
+[2025-11-10 11:15:08] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.ResponseService.handle_table_extraction_response with args: (<app.Services.ResponseService.ResponseService object at 0x0000022DD1043E00>, {'success': True, 'message': 'No tables detected in test.png. Returning extracted text.', 'rows_extracted': 0, 'columns': 0, 'excel_file': None, 'text_content': {'full_text': '[Ae [none [ema'}, 'timestamp': '2025-11-10T11:15:08.695745'}), kwargs: {}
+[2025-11-10 11:15:08] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.ResponseService.handle_table_extraction_response
+[2025-11-10 11:15:08] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.ResponseService.handle_table_extraction_response successfully
+[2025-11-10 11:15:08] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:15:08] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.api.Controller.DocumentController.extract_table_from_document successfully
+[2025-11-10 11:15:08] PerformanceAspect - INFO - async_wrapper:968 - Method app.api.Controller.DocumentController.extract_table_from_document executed in 81.4241 seconds
+[2025-11-10 11:21:12] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:23:42] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:23:47] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:24:44] MethodAspect - INFO - async_wrapper:925 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:24:44] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 11:24:44] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TableExtractionServiceV2.extract_table
+[2025-11-10 11:24:44] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TableExtractionServiceV2.extract_table with args: (<app.Services.TableExtractionServiceV2.TableExtractionServiceV2 object at 0x000001A7E1BBEBA0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:24:44] TableExtractionServiceV2 - INFO - extract_table:109 - Starting table extraction for file: test.png
+[2025-11-10 11:24:44] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:24:44] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x000001A7E1BBEE40>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:24:44] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/0d63d7ee-5280-4b9f-b9bb-cd66fc77a9d5.png
+[2025-11-10 11:24:44] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:24:44] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 11:24:51] TableExtractionServiceV2 - ERROR - extract_table:176 - Error processing file test.png: Document processing failed: too many values to unpack (expected 2)
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 121, in extract_table
+    pdf_path, temp_dir = await asyncio.get_event_loop().run_in_executor(
+    ^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 130, in extract_table
+    raise FileProcessingError(f"Document processing failed: {str(e)}")
+app.Exceptions.custom_exceptions.FileProcessingError: Document processing failed: too many values to unpack (expected 2)
+[2025-11-10 11:24:51] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.Services.TableExtractionServiceV2.extract_table (Context: general, Severity: high, Retry: 1/0): object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 121, in extract_table
+    pdf_path, temp_dir = await asyncio.get_event_loop().run_in_executor(
+    ^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 130, in extract_table
+    raise FileProcessingError(f"Document processing failed: {str(e)}")
+app.Exceptions.custom_exceptions.FileProcessingError: Document processing failed: too many values to unpack (expected 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 181, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] PerformanceAspect - ERROR - async_wrapper:972 - Method app.Services.TableExtractionServiceV2.extract_table failed after 6.6681 seconds: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.Services.TableExtractionServiceV2.extract_table with exception: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] DocumentController - ERROR - extract_table_from_document:72 - Error processing file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 121, in extract_table
+    pdf_path, temp_dir = await asyncio.get_event_loop().run_in_executor(
+    ^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 130, in extract_table
+    raise FileProcessingError(f"Document processing failed: {str(e)}")
+app.Exceptions.custom_exceptions.FileProcessingError: Document processing failed: too many values to unpack (expected 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 181, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.api.Controller.DocumentController.extract_table_from_document (Context: general, Severity: high, Retry: 1/0): 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 121, in extract_table
+    pdf_path, temp_dir = await asyncio.get_event_loop().run_in_executor(
+    ^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 130, in extract_table
+    raise FileProcessingError(f"Document processing failed: {str(e)}")
+app.Exceptions.custom_exceptions.FileProcessingError: Document processing failed: too many values to unpack (expected 2)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 181, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 73, in extract_table_from_document
+    raise HTTPException(
+    ...<2 lines>...
+    )
+fastapi.exceptions.HTTPException: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.api.Controller.DocumentController.extract_table_from_document with exception: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:24:51] PerformanceAspect - ERROR - async_wrapper:972 - Method app.api.Controller.DocumentController.extract_table_from_document failed after 7.2888 seconds: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:27:34] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:27:42] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:27:59] MethodAspect - INFO - async_wrapper:925 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:27:59] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 11:27:59] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TableExtractionServiceV2.extract_table
+[2025-11-10 11:27:59] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TableExtractionServiceV2.extract_table with args: (<app.Services.TableExtractionServiceV2.TableExtractionServiceV2 object at 0x00000286CCD82BA0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:27:59] TableExtractionServiceV2 - INFO - extract_table:109 - Starting table extraction for file: test.png
+[2025-11-10 11:27:59] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:27:59] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x00000286CCD82E40>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:27:59] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/893ec4df-a732-4c7a-a798-fe187a996ef7.png
+[2025-11-10 11:27:59] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:27:59] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 11:27:59] TableExtractionServiceV2 - INFO - extract_table:126 - Processed document to PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_112759_uegfjwnp\893ec4df-a732-4c7a-a798-fe187a996ef7.pdf
+[2025-11-10 11:27:59] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:27:59] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x00000286CCD82A50>, 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_112759_uegfjwnp\\893ec4df-a732-4c7a-a798-fe187a996ef7.pdf'), kwargs: {}
+[2025-11-10 11:27:59] OCRService - INFO - open_pdf:57 - Opened PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_112759_uegfjwnp\893ec4df-a732-4c7a-a798-fe187a996ef7.pdf
+[2025-11-10 11:27:59] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:27:59] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:27:59] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:27:59] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x00000286CCD82A50>, page 0 of C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_112759_uegfjwnp\893ec4df-a732-4c7a-a798-fe187a996ef7.pdf), kwargs: {}
+[2025-11-10 11:28:19] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 11:28:19] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 11:28:19] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 11:28:19] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 11:28:19] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:28:19] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.cluster_rows with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x00000286CCD82F90>, [{'x0': 62.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[nome'}, {'x0': 628.0, 'x1': 835.0, 'y0': 0.0, 'y1': 274.0, 'y_center': 137.0, 'text': '[aw'}, {'x0': 902.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[emt'}]), kwargs: {}
+[2025-11-10 11:28:19] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:28:19] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.cluster_rows successfully
+[2025-11-10 11:28:19] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.FileSaveService.save_results
+[2025-11-10 11:28:19] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.FileSaveService.save_results with args: (<app.Services.FileSaveService.FileSaveService object at 0x00000286CCD830E0>, [['[nome', '[aw', '[emt']], '893ec4df-a732-4c7a-a798-fe187a996ef7.pdf'), kwargs: {'output_dir': 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_112759_uegfjwnp'}
+[2025-11-10 11:28:19] AOPExceptionHandler - WARNING - _log_exception:608 - Exception in app.Services.FileSaveService.save_results (Context: file_operation, Severity: medium, Retry: 1/3): FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+[2025-11-10 11:28:19] MethodAspect - ERROR - sync_wrapper:945 - Exiting method: app.Services.FileSaveService.save_results with exception: File operation failed in app.Services.FileSaveService.save_results: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+[2025-11-10 11:28:19] TableExtractionServiceV2 - ERROR - extract_table:174 - Error processing file test.png: File operation failed in app.Services.FileSaveService.save_results: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 503, in sync_wrapper
+    result = func(*args, **kwargs)
+TypeError: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 142, in extract_table
+    result_paths = self.file_save_service.save_results(
+        cleaned_data,
+        os.path.basename(pdf_path),
+        output_dir=os.path.dirname(pdf_path)
+    )
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 941, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 539, in sync_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.FileOperationException: File operation failed in app.Services.FileSaveService.save_results: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+[2025-11-10 11:28:19] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.Services.TableExtractionServiceV2.extract_table (Context: general, Severity: high, Retry: 1/0): object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:19] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 503, in sync_wrapper
+    result = func(*args, **kwargs)
+TypeError: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 142, in extract_table
+    result_paths = self.file_save_service.save_results(
+        cleaned_data,
+        os.path.basename(pdf_path),
+        output_dir=os.path.dirname(pdf_path)
+    )
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 941, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 539, in sync_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.FileOperationException: File operation failed in app.Services.FileSaveService.save_results: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 179, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:26] PerformanceAspect - ERROR - async_wrapper:972 - Method app.Services.TableExtractionServiceV2.extract_table failed after 27.5632 seconds: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:26] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.Services.TableExtractionServiceV2.extract_table with exception: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:26] DocumentController - ERROR - extract_table_from_document:72 - Error processing file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 503, in sync_wrapper
+    result = func(*args, **kwargs)
+TypeError: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 142, in extract_table
+    result_paths = self.file_save_service.save_results(
+        cleaned_data,
+        os.path.basename(pdf_path),
+        output_dir=os.path.dirname(pdf_path)
+    )
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 941, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 539, in sync_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.FileOperationException: File operation failed in app.Services.FileSaveService.save_results: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 179, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:26] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.api.Controller.DocumentController.extract_table_from_document (Context: general, Severity: high, Retry: 1/0): 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:26] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 503, in sync_wrapper
+    result = func(*args, **kwargs)
+TypeError: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 142, in extract_table
+    result_paths = self.file_save_service.save_results(
+        cleaned_data,
+        os.path.basename(pdf_path),
+        output_dir=os.path.dirname(pdf_path)
+    )
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 941, in sync_wrapper
+    result = func(*args, **kwargs)
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 539, in sync_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.FileOperationException: File operation failed in app.Services.FileSaveService.save_results: FileSaveService.save_results() got an unexpected keyword argument 'output_dir'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 179, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 73, in extract_table_from_document
+    raise HTTPException(
+    ...<2 lines>...
+    )
+fastapi.exceptions.HTTPException: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:26] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.api.Controller.DocumentController.extract_table_from_document with exception: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:28:26] PerformanceAspect - ERROR - async_wrapper:972 - Method app.api.Controller.DocumentController.extract_table_from_document failed after 27.6844 seconds: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:33:59] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:34:04] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:34:36] MethodAspect - INFO - async_wrapper:925 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:34:36] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 11:34:36] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TableExtractionServiceV2.extract_table
+[2025-11-10 11:34:36] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TableExtractionServiceV2.extract_table with args: (<app.Services.TableExtractionServiceV2.TableExtractionServiceV2 object at 0x000002456293EA50>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:34:36] TableExtractionServiceV2 - INFO - extract_table:109 - Starting table extraction for file: test.png
+[2025-11-10 11:34:36] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:34:36] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x000002456293ECF0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:34:36] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/e42f2c5d-9514-48f5-976b-a7cae407922a.png
+[2025-11-10 11:34:36] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:34:36] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 11:34:37] TableExtractionServiceV2 - INFO - extract_table:126 - Processed document to PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113436_x46cz3o3\e42f2c5d-9514-48f5-976b-a7cae407922a.pdf
+[2025-11-10 11:34:37] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:34:37] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x000002456293E900>, 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_113436_x46cz3o3\\e42f2c5d-9514-48f5-976b-a7cae407922a.pdf'), kwargs: {}
+[2025-11-10 11:34:38] OCRService - INFO - open_pdf:57 - Opened PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113436_x46cz3o3\e42f2c5d-9514-48f5-976b-a7cae407922a.pdf
+[2025-11-10 11:34:38] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:34:38] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:34:38] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:34:38] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x000002456293E900>, page 0 of C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113436_x46cz3o3\e42f2c5d-9514-48f5-976b-a7cae407922a.pdf), kwargs: {}
+[2025-11-10 11:34:44] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 11:34:44] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 11:34:44] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 11:34:44] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 11:34:44] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:34:44] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.cluster_rows with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x000002456293EE40>, [{'x0': 62.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[nome'}, {'x0': 628.0, 'x1': 835.0, 'y0': 0.0, 'y1': 274.0, 'y_center': 137.0, 'text': '[aw'}, {'x0': 902.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[emt'}]), kwargs: {}
+[2025-11-10 11:34:44] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:34:44] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.cluster_rows successfully
+[2025-11-10 11:34:44] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.FileSaveService.save_results
+[2025-11-10 11:34:44] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.FileSaveService.save_results with args: (<app.Services.FileSaveService.FileSaveService object at 0x000002456293EF90>, [['[nome', '[aw', '[emt']], 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_113436_x46cz3o3\\e42f2c5d-9514-48f5-976b-a7cae407922a.json', 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_113436_x46cz3o3\\e42f2c5d-9514-48f5-976b-a7cae407922a.csv'), kwargs: {}
+[2025-11-10 11:34:44] FileSaveService - INFO - save_results:38 - Saved 1 rows to C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113436_x46cz3o3\e42f2c5d-9514-48f5-976b-a7cae407922a.csv and C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113436_x46cz3o3\e42f2c5d-9514-48f5-976b-a7cae407922a.json
+[2025-11-10 11:34:44] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.FileSaveService.save_results
+[2025-11-10 11:34:44] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.FileSaveService.save_results successfully
+[2025-11-10 11:34:44] TableExtractionServiceV2 - INFO - extract_table:170 - Successfully processed test.png in 8.05s. Extracted 1 tables from 1 pages.
+[2025-11-10 11:34:44] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.Services.TableExtractionServiceV2.extract_table (Context: general, Severity: high, Retry: 1/0): object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:44] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 189, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:44] PerformanceAspect - ERROR - async_wrapper:972 - Method app.Services.TableExtractionServiceV2.extract_table failed after 8.0954 seconds: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:44] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.Services.TableExtractionServiceV2.extract_table with exception: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:44] DocumentController - ERROR - extract_table_from_document:72 - Error processing file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 189, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:45] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.api.Controller.DocumentController.extract_table_from_document (Context: general, Severity: high, Retry: 1/0): 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:45] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 189, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 73, in extract_table_from_document
+    raise HTTPException(
+    ...<2 lines>...
+    )
+fastapi.exceptions.HTTPException: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:45] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.api.Controller.DocumentController.extract_table_from_document with exception: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:34:45] PerformanceAspect - ERROR - async_wrapper:972 - Method app.api.Controller.DocumentController.extract_table_from_document failed after 8.6395 seconds: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:06] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:38:11] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:38:22] MethodAspect - INFO - async_wrapper:925 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:38:22] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 11:38:22] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TableExtractionServiceV2.extract_table
+[2025-11-10 11:38:22] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TableExtractionServiceV2.extract_table with args: (<app.Services.TableExtractionServiceV2.TableExtractionServiceV2 object at 0x000001DFA911EA50>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:38:22] TableExtractionServiceV2 - INFO - extract_table:110 - Starting table extraction for file: test.png
+[2025-11-10 11:38:22] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:38:22] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x000001DFA911ECF0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:38:22] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/d0106533-d117-47b9-b624-863219490241.png
+[2025-11-10 11:38:22] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:38:22] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 11:38:24] TableExtractionServiceV2 - INFO - extract_table:127 - Processed document to PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113822_8j7926bh\d0106533-d117-47b9-b624-863219490241.pdf
+[2025-11-10 11:38:24] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:38:24] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x000001DFA911E900>, 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_113822_8j7926bh\\d0106533-d117-47b9-b624-863219490241.pdf'), kwargs: {}
+[2025-11-10 11:38:24] OCRService - INFO - open_pdf:57 - Opened PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113822_8j7926bh\d0106533-d117-47b9-b624-863219490241.pdf
+[2025-11-10 11:38:24] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:38:24] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:38:24] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:38:24] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x000001DFA911E900>, page 0 of C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113822_8j7926bh\d0106533-d117-47b9-b624-863219490241.pdf), kwargs: {}
+[2025-11-10 11:38:36] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 11:38:36] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 11:38:36] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 11:38:36] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 11:38:36] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:38:36] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.cluster_rows with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x000001DFA911EE40>, [{'x0': 62.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[nome'}, {'x0': 628.0, 'x1': 835.0, 'y0': 0.0, 'y1': 274.0, 'y_center': 137.0, 'text': '[aw'}, {'x0': 902.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[emt'}]), kwargs: {}
+[2025-11-10 11:38:36] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:38:36] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.cluster_rows successfully
+[2025-11-10 11:38:36] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.FileSaveService.save_results
+[2025-11-10 11:38:36] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.FileSaveService.save_results with args: (<app.Services.FileSaveService.FileSaveService object at 0x000001DFA911EF90>, [['[nome', '[aw', '[emt']], 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_113822_8j7926bh\\d0106533-d117-47b9-b624-863219490241.json', 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_113822_8j7926bh\\d0106533-d117-47b9-b624-863219490241.csv'), kwargs: {}
+[2025-11-10 11:38:36] FileSaveService - INFO - save_results:38 - Saved 1 rows to C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113822_8j7926bh\d0106533-d117-47b9-b624-863219490241.csv and C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_113822_8j7926bh\d0106533-d117-47b9-b624-863219490241.json
+[2025-11-10 11:38:36] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.FileSaveService.save_results
+[2025-11-10 11:38:36] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.FileSaveService.save_results successfully
+[2025-11-10 11:38:36] TableExtractionServiceV2 - INFO - extract_table:171 - Successfully processed test.png in 14.13s. Extracted 1 tables from 1 pages.
+[2025-11-10 11:38:36] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.Services.TableExtractionServiceV2.extract_table (Context: general, Severity: high, Retry: 1/0): object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 192, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] PerformanceAspect - ERROR - async_wrapper:972 - Method app.Services.TableExtractionServiceV2.extract_table failed after 14.2595 seconds: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.Services.TableExtractionServiceV2.extract_table with exception: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] DocumentController - ERROR - extract_table_from_document:72 - Error processing file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 192, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] AOPExceptionHandler - ERROR - _log_exception:605 - Exception in app.api.Controller.DocumentController.extract_table_from_document (Context: general, Severity: high, Retry: 1/0): 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] AOPExceptionHandler - ERROR - _log_exception:606 - High severity exception traceback:
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 192, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 58, in extract_table_from_document
+    result = await table_extraction_service.extract_table(file)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 927, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 966, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 475, in async_wrapper
+    raise handled_exception
+app.Exceptions.custom_exceptions.BaseOCRException: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Exceptions\custom_exceptions.py", line 439, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\api\Controller\DocumentController.py", line 73, in extract_table_from_document
+    raise HTTPException(
+    ...<2 lines>...
+    )
+fastapi.exceptions.HTTPException: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] MethodAspect - ERROR - async_wrapper:931 - Exiting method: app.api.Controller.DocumentController.extract_table_from_document with exception: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:38:36] PerformanceAspect - ERROR - async_wrapper:972 - Method app.api.Controller.DocumentController.extract_table_from_document failed after 14.5438 seconds: General error in app.api.Controller.DocumentController.extract_table_from_document: 500: An error occurred while processing the file: General error in app.Services.TableExtractionServiceV2.extract_table: object NoneType can't be used in 'await' expression
+[2025-11-10 11:39:43] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:39:55] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:41:34] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:41:40] TableExtractionServiceV2 - INFO - __init__:72 - TableExtractionServiceV2 initialized
+[2025-11-10 11:41:51] MethodAspect - INFO - async_wrapper:925 - Entering method: app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:41:51] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.api.Controller.DocumentController.extract_table_from_document with args: (), kwargs: {'file': UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))}
+[2025-11-10 11:41:51] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.TableExtractionServiceV2.extract_table
+[2025-11-10 11:41:51] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.TableExtractionServiceV2.extract_table with args: (<app.Services.TableExtractionServiceV2.TableExtractionServiceV2 object at 0x0000017548CEEBA0>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:41:51] TableExtractionServiceV2 - INFO - extract_table:111 - Starting table extraction for file: test.png
+[2025-11-10 11:41:51] MethodAspect - INFO - async_wrapper:925 - Entering method: app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:41:51] AOPExceptionHandler - INFO - async_wrapper:427 - Entering app.Services.FileUploadService.save_uploaded_file with args: (<app.Services.FileUploadService.FileUploadService object at 0x0000017548CEEE40>, UploadFile(filename='test.png', size=1707989, headers=Headers({'content-disposition': 'form-data; name="file"; filename="test.png"', 'content-type': 'image/png'}))), kwargs: {}
+[2025-11-10 11:41:51] FileUploadService - INFO - save_uploaded_file:55 - Successfully saved uploaded file: test.png to temp_uploads/dfb706e6-267b-4632-9a7b-d33d901f6fa3.png
+[2025-11-10 11:41:51] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.FileUploadService.save_uploaded_file
+[2025-11-10 11:41:51] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.FileUploadService.save_uploaded_file successfully
+[2025-11-10 11:41:53] TableExtractionServiceV2 - INFO - extract_table:128 - Processed document to PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_114151_0dk9_1c5\dfb706e6-267b-4632-9a7b-d33d901f6fa3.pdf
+[2025-11-10 11:41:53] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.open_pdf
+[2025-11-10 11:41:53] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.open_pdf with args: (<app.Services.OCRService.OCRService object at 0x0000017548CEEA50>, 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_114151_0dk9_1c5\\dfb706e6-267b-4632-9a7b-d33d901f6fa3.pdf'), kwargs: {}
+[2025-11-10 11:41:53] OCRService - INFO - open_pdf:57 - Opened PDF: C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_114151_0dk9_1c5\dfb706e6-267b-4632-9a7b-d33d901f6fa3.pdf
+[2025-11-10 11:41:53] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.open_pdf
+[2025-11-10 11:41:53] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.open_pdf successfully
+[2025-11-10 11:41:53] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.OCRService.extract_page_spans
+[2025-11-10 11:41:53] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.OCRService.extract_page_spans with args: (<app.Services.OCRService.OCRService object at 0x0000017548CEEA50>, page 0 of C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_114151_0dk9_1c5\dfb706e6-267b-4632-9a7b-d33d901f6fa3.pdf), kwargs: {}
+[2025-11-10 11:42:05] OCRService - INFO - extract_page_spans:82 - OCR found 7 text elements
+[2025-11-10 11:42:05] OCRService - INFO - extract_page_spans:94 - Extracted 3 spans from OCR
+[2025-11-10 11:42:05] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.OCRService.extract_page_spans
+[2025-11-10 11:42:05] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.OCRService.extract_page_spans successfully
+[2025-11-10 11:42:05] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:42:05] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.TableProcessingService.cluster_rows with args: (<app.Services.TableProcessingService.TableProcessingService object at 0x0000017548CEEF90>, [{'x0': 62.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[nome'}, {'x0': 628.0, 'x1': 835.0, 'y0': 0.0, 'y1': 274.0, 'y_center': 137.0, 'text': '[aw'}, {'x0': 902.0, 'x1': 1445.0, 'y0': 65.0, 'y1': 216.0, 'y_center': 140.5, 'text': '[emt'}]), kwargs: {}
+[2025-11-10 11:42:05] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.TableProcessingService.cluster_rows
+[2025-11-10 11:42:05] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.TableProcessingService.cluster_rows successfully
+[2025-11-10 11:42:05] MethodAspect - INFO - sync_wrapper:939 - Entering method: app.Services.FileSaveService.save_results
+[2025-11-10 11:42:05] AOPExceptionHandler - INFO - sync_wrapper:491 - Entering app.Services.FileSaveService.save_results with args: (<app.Services.FileSaveService.FileSaveService object at 0x0000017548CEF0E0>, [['[nome', '[aw', '[emt']], 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_114151_0dk9_1c5\\dfb706e6-267b-4632-9a7b-d33d901f6fa3.json', 'C:\\Users\\ADMIN\\AppData\\Local\\Temp\\doc_processor_20251110_114151_0dk9_1c5\\dfb706e6-267b-4632-9a7b-d33d901f6fa3.csv'), kwargs: {}
+[2025-11-10 11:42:05] FileSaveService - INFO - save_results:38 - Saved 1 rows to C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_114151_0dk9_1c5\dfb706e6-267b-4632-9a7b-d33d901f6fa3.csv and C:\Users\ADMIN\AppData\Local\Temp\doc_processor_20251110_114151_0dk9_1c5\dfb706e6-267b-4632-9a7b-d33d901f6fa3.json
+[2025-11-10 11:42:05] AOPExceptionHandler - INFO - sync_wrapper:511 - Successfully executed app.Services.FileSaveService.save_results
+[2025-11-10 11:42:05] MethodAspect - INFO - sync_wrapper:942 - Exiting method: app.Services.FileSaveService.save_results successfully
+[2025-11-10 11:42:05] TableExtractionServiceV2 - INFO - extract_table:172 - Successfully processed test.png in 13.47s. Extracted 1 tables from 1 pages.
+[2025-11-10 11:42:05] TableExtractionServiceV2 - ERROR - extract_table:205 - Error during cleanup: object NoneType can't be used in 'await' expression
+Traceback (most recent call last):
+  File "E:\OCRMAIN - Copy - Copy - Copy (2)\app\Services\TableExtractionServiceV2.py", line 197, in extract_table
+    await self._cleanup_temp_files(temp_files)
+TypeError: object NoneType can't be used in 'await' expression
+[2025-11-10 11:42:05] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.Services.TableExtractionServiceV2.extract_table
+[2025-11-10 11:42:05] PerformanceAspect - INFO - async_wrapper:968 - Method app.Services.TableExtractionServiceV2.extract_table executed in 13.4831 seconds
+[2025-11-10 11:42:05] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.Services.TableExtractionServiceV2.extract_table successfully
+[2025-11-10 11:42:05] AOPExceptionHandler - INFO - async_wrapper:447 - Successfully executed app.api.Controller.DocumentController.extract_table_from_document
+[2025-11-10 11:42:05] MethodAspect - INFO - async_wrapper:928 - Exiting method: app.api.Controller.DocumentController.extract_table_from_document successfully
+[2025-11-10 11:42:05] PerformanceAspect - INFO - async_wrapper:968 - Method app.api.Controller.DocumentController.extract_table_from_document executed in 13.5015 seconds
+[2025-11-10 11:46:46] TableExtractionServiceV2 - INFO - __init__:73 - TableExtractionServiceV2 initialized
